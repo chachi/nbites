@@ -21,6 +21,7 @@
 #include "ALEnactor.h"
 
 #include <iostream>
+#include <string>
 #include <boost/assign/std/vector.hpp>
 using namespace boost::assign;
 using namespace AL;
@@ -47,8 +48,8 @@ void ALEnactor::run() {
 
 #if ! defined OFFLINE || ! defined SPEEDY_ENACTOR
         if (processTime > MOTION_FRAME_LENGTH_uS){
-            cout << "Time spent in ALEnactor longer than frame length: "
-                 << processTime <<endl;
+            std::cout << "Time spent in ALEnactor longer than frame length: "
+                 << processTime <<std::endl;
             //Don't sleep at all
         } else{
 			interval.tv_sec = 0;
@@ -79,8 +80,8 @@ void ALEnactor::sendJoints(){
 
 #ifdef DEBUG_ENACTOR_JOINTS
     for (unsigned int i=0; i<motionCommandAngles.size();i++)
-        cout << "result of joint " << i << " is "
-             << motionCommandAngles.at(i) << endl;
+        std::cout << "result of joint " << i << " is "
+             << motionCommandAngles.at(i) << std::endl;
 #endif
 
 #ifndef NO_ACTUAL_MOTION
@@ -99,7 +100,7 @@ void ALEnactor::sendHardness(){
 
         const float chainStiffness
             = motionCommandStiffness[joint];
-        const string name = JOINT_STRINGS[joint];
+        const std::string name = JOINT_STRINGS[joint];
 #ifndef NO_ACTUAL_MOTION
         //almotion->setStiffness(name ,chainStiffness);
 #endif

@@ -12,9 +12,9 @@ class TOOLConnect; // forward reference
 
 #include "CommDef.h"
 #include "DataSerializer.h"
-#include "LocSystem.h"
-#include "MMLocEKF.h"
-#include "BallEKF.h"
+#include "localization/LocSystem.h"
+#include "localization/MMLocEKF.h"
+#include "localization/BallEKF.h"
 #include "GameController.h"
 
 //

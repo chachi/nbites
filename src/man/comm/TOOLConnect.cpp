@@ -10,7 +10,7 @@ using namespace boost::assign;
 #include "CommDef.h"
 #include "Kinematics.h"
 #include "SensorDef.h"
-#include "MMLocEKF.h"
+#include "localization/MMLocEKF.h"
 
 using std::vector;
 using namespace boost;

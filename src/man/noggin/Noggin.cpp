@@ -7,8 +7,8 @@
 #include "PyLoc.h"
 #include "EKFStructs.h"
 #include <cstdlib>
-#include "MMLocEKF.h"
-#include "LocEKF.h"
+#include "localization/MMLocEKF.h"
+#include "localization/LocEKF.h"
 
 #include "PySensors.h"
 #include "PyRoboGuardian.h"

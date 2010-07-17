@@ -2,10 +2,12 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <iomanip> // setprecision for cout
 
 using namespace std;
 
 #include "Kinematics.h"
+
 
 #include "FreezeCommand.h"
 #include "UnfreezeCommand.h"

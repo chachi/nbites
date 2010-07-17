@@ -10,8 +10,8 @@ using namespace boost;
 
 // #include "MCL.h"
 // #include "LocEKF.h"
-#include "LocSystem.h"
-#include "BallEKF.h"
+#include "localization/LocSystem.h"
+#include "localization/BallEKF.h"
 
 static shared_ptr<LocSystem> loc_reference;
 static shared_ptr<BallEKF> ballEKF_reference;
