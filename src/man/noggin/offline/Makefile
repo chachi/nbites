@@ -1,7 +1,7 @@
 C++ = g++
 C++-FLAGS = -Wall -O3 -DNDEBUG -pg
 RM = rm -f
-INCLUDE = -I ../../include/ -I ../../vision/ -I ./../ -I ./ -I /sw/include/
+INCLUDE = -I ../../include/ -I ../../vision/ -I ./../ -I ./ -I /sw/include/ -I ../../
 
 NBMATH_SRCS = ../../include/NBMath.cpp \
 	      ../../include/NBMath.h
@@ -100,7 +100,7 @@ EXECS = faker.o \
 LDLIBS = $(OBJS)
 LDFLAGS = $(LDLIBS)
 
-all : convertRobotLog faker
+all : convertRobotLog faker obsToLoc
 
 # The faker tool
 convertRobotLog : $(ROBOT_LOG_SRCS) $(OBJS) convertRobotLog.o

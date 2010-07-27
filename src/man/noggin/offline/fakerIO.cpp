@@ -331,10 +331,14 @@ void printOutLogLine(fstream* outputFile, shared_ptr<LocSystem> myLoc,
                      int team_color, int player_number, int ball_id)
 {
     // Output standard infos
-    *outputFile << setprecision(6) << team_color<< " " << player_number << "|"
-                << myLoc->getXEst() << " " << myLoc->getYEst() << " "
+    *outputFile << setprecision(6)
+				<< team_color<< " "
+				<< player_number << "|"
+                << myLoc->getXEst() << " "
+				<< myLoc->getYEst() << " "
                 << myLoc->getHEst() << " "
-                << myLoc->getXUncert() << " " << myLoc->getYUncert() << " "
+                << myLoc->getXUncert() << " "
+				<< myLoc->getYUncert() << " "
                 << myLoc->getHUncert() << " ";
 
 #ifdef USE_MM_LOC_EKF

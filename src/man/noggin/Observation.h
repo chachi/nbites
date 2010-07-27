@@ -106,10 +106,12 @@ public:
 	void setPointPossibility(PointLandmark p){
 		pointPossibilities.clear();
 		pointPossibilities.push_back(p);
+		numPossibilities = 1;
 	}
 	void setLinePossibility(LineLandmark l){
 		linePossibilities.clear();
 		linePossibilities.push_back(l);
+		numPossibilities = 1;
 	}
 
     // Helper functions

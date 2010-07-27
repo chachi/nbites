@@ -71,7 +71,6 @@ void MMLocEKF::timeUpdate(MotionModel u)
 
 bool MMLocEKF::correctionStep(vector<Observation>& Z)
 {
-
 	const bool appliedUnambiguous = applyUnambiguousObservations(Z);
 	const bool appliedAmbiguous = applyAmbiguousObservations(Z);
 	return appliedUnambiguous || appliedAmbiguous;
@@ -116,6 +115,7 @@ bool MMLocEKF::applyAmbiguousObservations(const vector<Observation>& Z)
 	bool applied = false;
 	if (!Z.empty())
 		applied = true;
+
 	for (int i=0; i < MAX_MODELS ; ++i){
 		vector<Observation>::const_iterator obs;
 		for (obs = Z.begin(); obs != Z.end() ; ++obs){
@@ -131,10 +131,16 @@ void MMLocEKF::splitObservation(const Observation& obs, LocEKF * model)
 	list<LocEKF*> splitModels;
 
 	// const int numRequiredModels = obs.getNumPossibilities() * numActive;
+	// bool consolidated;
 	// if (numRequiredModels > numFree)
-	// 	consolidateModels(MAX_ACTIVE_MODELS);
+	// 	consolidated = consolidateModels(MAX_MODELS - numRequiredModels);
 
+	// @TODO Better handling of too few free models
 	for (unsigned int i=0; i < obs.getNumPossibilities(); ++i){
+		if (numFree < 1){
+			break;
+		}
+
 		LocEKF * inactiveModel = getInactiveModel();
 		inactiveModel->copyEKF(*model);
 
@@ -151,13 +157,15 @@ void MMLocEKF::splitObservation(const Observation& obs, LocEKF * model)
 		}
 	}
 
-	consolidateModels(MAX_ACTIVE_MODELS);
-	normalizeProbabilities(splitModels, originalProb);
 	// If every possibility is an outlier and the original model was the only
 	// model to start with, than we need to keep this model active.
-	if (numActive > 1)
+	if (numActive > 1) {
 		deactivateModel(model);
-
+		consolidateModels(MAX_ACTIVE_MODELS);
+		normalizeProbabilities(splitModels, originalProb);
+	} else {
+		model->updateState();
+	}
 }
 
 void MMLocEKF::endFrame()
@@ -186,7 +194,7 @@ void MMLocEKF::normalizeProbabilities(const list<LocEKF*>& unnormalized,
 
     if(sumAlpha == 1.0) return;
 
-    if (sumAlpha == 0) sumAlpha = 1e-12;
+    if (sumAlpha == 0) sumAlpha = 1e-8;
 
 	model = unnormalized.begin();
     for ( ; model != unnormalized.end() ; model++) {
@@ -198,7 +206,7 @@ void MMLocEKF::normalizeProbabilities(const list<LocEKF*>& unnormalized,
 }
 
 // @todo Tune merging and # of MAX_ACTIVE_MODELS
-void MMLocEKF::consolidateModels(int maxAfterMerge)
+bool MMLocEKF::consolidateModels(int maxAfterMerge)
 {
 	double mergeThreshold = MERGE_THRESH_INIT;
 	int numMerges = 0;
@@ -217,7 +225,10 @@ void MMLocEKF::consolidateModels(int maxAfterMerge)
 		mergeThreshold += MERGE_THRESH_STEP;
 		mergeModels(mergeThreshold);
 		numMerges++;
+		if (numMerges > 4)
+			return false;
 	}
+	return true;
 }
 
 void MMLocEKF::mergeModels(double mergeThreshold)
@@ -261,9 +272,10 @@ bool MMLocEKF::mergeable(double mergeThreshold, LocEKF* one, LocEKF* two)
 	uncertSumInv(1,0) = 0.0f;
 	uncertSumInv(1,1) = uncertSum(0,0)/denom;
 
-	double metric = abs(one->getProbability() * two->getProbability() *
-		inner_prod(trans(diff), prod(uncertSumInv, diff)));
+	const double metric = abs(one->getProbability() * two->getProbability() *
+							  inner_prod(trans(diff), prod(uncertSumInv, diff)));
 
+	// cout << metric << endl;
 	return (metric < mergeThreshold);
 }
 

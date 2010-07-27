@@ -281,11 +281,12 @@ bool LocEKF::applyObservation(Observation Z)
 }
 
 #ifdef USE_MM_LOC_EKF
-bool LocEKF::updateProabbility(const Observation& Z)
+bool LocEKF::updateProbability(const Observation& Z)
 {
 
-	if (R_k(0,0) == DONT_PROCESS_KEY)
+	if (R_k(0,0) == DONT_PROCESS_KEY){
 		return true;
+	}
 
 	const MeasurementMatrix measurementVar = R_k + R_pred_k;
 
@@ -311,8 +312,9 @@ bool LocEKF::updateProabbility(const Observation& Z)
 	const double exponent = -0.5 * inner_prod(trans(v_k),
 											  prod(measurementVarInv, v_k));
 
-	if (abs(exponent) > 2.25)
+	if (abs(exponent) > 2.25){
 		return true;
+	}
 
 	double detMeasVar = (-measurementVar(0,1) * measurementVar(1,0) +
 						 measurementVar(0,0) * measurementVar(1,1));
@@ -324,6 +326,7 @@ bool LocEKF::updateProabbility(const Observation& Z)
 	const double outlierProb = 0.08;
 	const double probCo = (1-outlierProb)*(pow(M_E, exponent)) + outlierProb;
 
+	// cout << "exponent" << exponent << endl;
 	// cout << "probCo= " << probCo << "\tprob:" << probability << endl;
 
 	probability *= probCo;
@@ -426,15 +429,16 @@ void LocEKF::incorporateMeasurement(Observation z,
     se(0,0) = sqrt(se(0,0));
     se(1,1) = sqrt(se(1,1));
 
+	// @TODO Figure out why this isn't good.
     // Ignore observations based on standard error
-    if ( se(0,0)*6.0f < abs(V_k(0))) {
-#ifdef DEBUG_STANDARD_ERROR
-        cout << "\t Ignoring measurement " << endl;
-        cout << "\t Standard error is " << se << endl;
-        cout << "\t Invariance is " << abs(V_k(0))*5 << endl;
-#endif
-        R_k(0,0) = DONT_PROCESS_KEY;
-    }
+//     if ( se(0,0)*6.0f < abs(V_k(0))) {
+// #ifdef DEBUG_STANDARD_ERROR
+//         cout << "\t Ignoring measurement " << endl;
+//         cout << "\t Standard error is " << se << endl;
+//         cout << "\t Invariance is " << abs(V_k(0))*5 << endl;
+// #endif
+//         R_k(0,0) = DONT_PROCESS_KEY;
+//     }
 
 }
 
@@ -648,8 +652,11 @@ void LocEKF::incorporatePolarMeasurement(int obsIndex,
 		const double uncertY = getYUncert();
 		const double uncertH = getHUncert();
 
-		const float xInvariance = abs(x - x_b);
-		const float yInvariance = abs(y - y_b);
+		const float xInvariance = max(abs(x - x_b),
+									  0.00000001f);
+		const float yInvariance = max(abs(y - y_b),
+									  0.00000001f);
+
 
 		R_pred_k(0,0) = ((uncertX/xInvariance) + (uncertY/yInvariance) /
 						 (xInvariance*xInvariance + yInvariance*yInvariance));
@@ -657,7 +664,9 @@ void LocEKF::incorporatePolarMeasurement(int obsIndex,
 		R_pred_k(1,0) = 0;
 		R_pred_k(1,1) = (((uncertY / yInvariance) + (uncertX / xInvariance)) /
 						 (yInvariance / xInvariance) + uncertH);
-#endif
+		// cout << "R_pred_k" << R_pred_k(0,0) << " " << R_pred_k(0,1) << " " <<
+		// 	R_pred_k(1,0) << " " << R_pred_k(1,1) << " " << endl;
+ #endif
 
 #ifdef DEBUG_LOC_EKF_INPUTS
         cout << "\t\t\tR vector is" << R_k << endl;

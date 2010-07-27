@@ -33,7 +33,7 @@ private:						// Private methods
 	void applyNoCorrectionStep();
 
 	void splitObservation(const Observation& obs, LocEKF * model);
-	void consolidateModels(int maxAfterMerge);
+	bool consolidateModels(int maxAfterMerge);
 
 	void mergeModels(double mergeThreshold);
 
@@ -96,6 +96,9 @@ public:
     virtual void blueGoalieReset();
     virtual void redGoalieReset();
     virtual void reset();
+
+	// @TODO Implement these functions
+	virtual void resetLocTo(float x, float y, float h) { };
 
 	// LocSystem virtual setters
     virtual void setXEst(float xEst){}
