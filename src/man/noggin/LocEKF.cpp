@@ -3,6 +3,8 @@
 #include "FieldConstants.h"
 //#define DEBUG_LOC_EKF_INPUTS
 //#define DEBUG_STANDARD_ERROR
+//#define DEBUG_PROBABILITY
+//#define DEBUG_R_PRED
 using namespace boost::numeric;
 using namespace boost;
 using namespace std;
@@ -313,6 +315,14 @@ bool LocEKF::updateProbability(const Observation& Z)
 											  prod(measurementVarInv, v_k));
 
 	if (abs(exponent) > 2.25){
+
+#ifdef DEBUG_PROBABILITY
+		cout << "\nOutlier detected: " << endl
+			 << "\tExponent: " << exponent << endl
+			 << "\tInvariance: " << v_k << endl
+			 << "\tVariance Sum: " << measurementVar << endl;
+#endif
+
 		return true;
 	}
 
@@ -320,14 +330,20 @@ bool LocEKF::updateProbability(const Observation& Z)
 						 measurementVar(0,0) * measurementVar(1,1));
 	if (detMeasVar < 0.0001)
 		detMeasVar = 1e-08;
-	const double coefficient = 1 / sqrt( //pow(2 * PI, LOC_MEASUREMENT_DIMENSION) *
+	const double coefficient = 1 / sqrt( pow(2 * PI, LOC_MEASUREMENT_DIMENSION) *
 										 detMeasVar );
 
 	const double outlierProb = 0.08;
 	const double probCo = (1-outlierProb)*(pow(M_E, exponent)) + outlierProb;
 
-	// cout << "exponent" << exponent << endl;
-	// cout << "probCo= " << probCo << "\tprob:" << probability << endl;
+#ifdef DEBUG_PROBABILITY
+	cout << "\nUpdating probability" << endl
+		 << "\tInnovation: " << v_k << endl
+		 << "\tVariance sum: " << measurementVar << endl
+		 << "\tExponent: " << exponent << endl
+		 << "\tProb. coefficent: " << probCo << endl
+		 << "\tProbability:" << probability << endl;
+#endif
 
 	probability *= probCo;
 	return false;
@@ -431,14 +447,17 @@ void LocEKF::incorporateMeasurement(Observation z,
 
 	// @TODO Figure out why this isn't good.
     // Ignore observations based on standard error
-//     if ( se(0,0)*6.0f < abs(V_k(0))) {
-// #ifdef DEBUG_STANDARD_ERROR
-//         cout << "\t Ignoring measurement " << endl;
-//         cout << "\t Standard error is " << se << endl;
-//         cout << "\t Invariance is " << abs(V_k(0))*5 << endl;
-// #endif
-//         R_k(0,0) = DONT_PROCESS_KEY;
-//     }
+    if ( se(0,0)*6.0f < abs(V_k(0))) {
+#ifdef DEBUG_STANDARD_ERROR
+        cout << "\t Ignoring measurement " << endl;
+        cout << "\t Standard error is " << se << endl;
+        cout << "\t Invariance is " << abs(V_k) << endl;
+#endif
+        // R_k(0,0) = DONT_PROCESS_KEY;
+    }
+#ifdef DEBUG_R_PRED
+	cout << "R_pred_k: " << R_pred_k << endl;
+#endif
 
 }
 
@@ -607,7 +626,7 @@ void LocEKF::incorporatePolarMeasurement(int obsIndex,
 		R_k(1,0) = 0;
         R_k(1,1) = z.getBearingSD() * z.getBearingSD();
 
-	} else{
+	} else {
         // Get the observed range and bearing
         MeasurementVector z_x(2);
         z_x(0) = z.getVisDistance();
@@ -664,8 +683,6 @@ void LocEKF::incorporatePolarMeasurement(int obsIndex,
 		R_pred_k(1,0) = 0;
 		R_pred_k(1,1) = (((uncertY / yInvariance) + (uncertX / xInvariance)) /
 						 (yInvariance / xInvariance) + uncertH);
-		// cout << "R_pred_k" << R_pred_k(0,0) << " " << R_pred_k(0,1) << " " <<
-		// 	R_pred_k(1,0) << " " << R_pred_k(1,1) << " " << endl;
  #endif
 
 #ifdef DEBUG_LOC_EKF_INPUTS

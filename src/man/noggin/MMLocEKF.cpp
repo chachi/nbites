@@ -1,5 +1,9 @@
 #include "MMLocEKF.h"
 
+// #define DEBUG_MERGING
+// #define DEBUG_MERGING_THRESH
+//#define DEBUG_SMALL_PROB
+
 // @todo implement mostLikelyModel tracking
 MMLocEKF::MMLocEKF() :
 	LocSystem(),mostLikelyModel(0), numActive(0),
@@ -206,16 +210,24 @@ void MMLocEKF::normalizeProbabilities(const list<LocEKF*>& unnormalized,
 }
 
 // @todo Tune merging and # of MAX_ACTIVE_MODELS
+// Returns true if consolidation was successful
 bool MMLocEKF::consolidateModels(int maxAfterMerge)
 {
 	double mergeThreshold = MERGE_THRESH_INIT;
 	int numMerges = 0;
+
 	const int MAX_MERGES = 10;
 	const double MIN_ACCEPT_PROB = 0.0001;
 
 	for (int i=0; i < MAX_MODELS; ++i){
 		if (models[i]->isActive() &&
 			models[i]->getProbability() < MIN_ACCEPT_PROB){
+
+#ifdef DEBUG_SMALL_PROB
+			cout << "Deactivating model with prob. of " <<
+				models[i]->getProbability() << endl;
+#endif
+
 			deactivateModel(models[i]);
 		}
 	}
@@ -223,11 +235,20 @@ bool MMLocEKF::consolidateModels(int maxAfterMerge)
 	bool shouldMergeAgain = true;
 	while (numActive > maxAfterMerge){
 		mergeThreshold += MERGE_THRESH_STEP;
+
+#ifdef DEBUG_MERGING
+		cout << "\n\nMerge #:" << numMerges <<
+			" Thresh = " << mergeThreshold << endl;
+#endif
+
 		mergeModels(mergeThreshold);
 		numMerges++;
-		if (numMerges > 4)
-			return false;
 	}
+
+#ifdef DEBUG_MERGING
+	cout << "\t" << numActive << " models remaining after consolidation." << endl;
+#endif
+
 	return true;
 }
 
@@ -237,6 +258,11 @@ void MMLocEKF::mergeModels(double mergeThreshold)
 		for (int j=0; j < MAX_MODELS; ++j){
 			if (i != j && mergeable(mergeThreshold,
 									models[i], models[j])){
+
+#ifdef DEBUG_MERGING
+				cout << "Merging " << *models[i] << endl << " with " << endl
+					 << *models[j] << endl;
+#endif
 				models[i]->mergeEKF(*models[j]);
 				deactivateModel(models[j]);
 			}
@@ -275,7 +301,14 @@ bool MMLocEKF::mergeable(double mergeThreshold, LocEKF* one, LocEKF* two)
 	const double metric = abs(one->getProbability() * two->getProbability() *
 							  inner_prod(trans(diff), prod(uncertSumInv, diff)));
 
-	// cout << metric << endl;
+#ifdef DEBUG_MERGING_THRESH
+	cout << "\tMetric between " << *one << endl <<
+		" and " << endl << *two << endl
+		 <<" is " << metric << endl;
+	cout << "\tDiff is " << diff << endl;
+	cout << "\tInverse sum is" << uncertSumInv << endl;
+#endif
+
 	return (metric < mergeThreshold);
 }
 
