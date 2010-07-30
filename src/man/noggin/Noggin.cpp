@@ -69,6 +69,9 @@ Noggin::Noggin (shared_ptr<Profiler> p, shared_ptr<Vision> v,
     // Instantiate a Brain instance
     getBrainInstance();
 
+    brain = shared_ptr<Brain>(new Brain(v, loc, ballEKF, sensors, comm,
+                                        motion_interface, rbg, p));
+
 #   ifdef DEBUG_NOGGIN_INITIALIZATION
     printf("  DONE!\n");
 #   endif

@@ -1,6 +1,8 @@
 #ifndef Comm_H
 #define Comm_H
 
+#include "Common.h"
+
 #if ROBOT(NAO)
 // Comment out the ENTIRE FILE if we are compiling for the Aibo
 
@@ -11,7 +13,6 @@
 #include <arpa/inet.h>  // inet_aton(), htonl()
 #include <boost/shared_ptr.hpp>
 
-#include "Common.h"
 #include "synchro.h"
 #include "Sensors.h"
 #include "CommDef.h"

@@ -132,13 +132,29 @@ INCLUDE_DIRECTORIES( ${NBCOMMON_INCLUDE_DIR}
 
 SET( NOGGIN_SRCS ${NOGGIN_INCLUDE_DIR}/Noggin
                  ${NOGGIN_INCLUDE_DIR}/Observation
-                 # ${NOGGIN_INCLUDE_DIR}/localization/MCL
-                 ${NOGGIN_INCLUDE_DIR}/localization/BallEKF
                  ${NOGGIN_INCLUDE_DIR}/PyLoc
-                 ${NOGGIN_INCLUDE_DIR}/localization/LocEKF
-                 ${NOGGIN_INCLUDE_DIR}/localization/MMLocEKF
                  ${NOGGIN_INCLUDE_DIR}/NogginStructs.h
+                 ${NOGGIN_INCLUDE_DIR}/Brain
+                 # ${NOGGIN_INCLUDE_DIR}/behavior/player/Player
+                 # ${NOGGIN_INCLUDE_DIR}/behavior/navigator/Navigator
+                 # ${NOGGIN_INCLUDE_DIR}/behavior/headTracker/HeadTracker
+                 # ${NOGGIN_INCLUDE_DIR}/behavior/fallController/FallController
+                 # ${NOGGIN_INCLUDE_DIR}/behavior/gameAwareness/GameAwareness
                  )
+
+SET( LOC_INCLUDE_DIR ${NOGGIN_INCLUDE_DIR}/localization)
+SET( LOC_SRCS ${LOC_INCLUDE_DIR}/BallEKF
+              ${LOC_INCLUDE_DIR}/LocEKF
+              ${LOC_INCLUDE_DIR}/MMLocEKF
+              )
+
+SET( NOGGIN_TYPE_DIR ${NOGGIN_INCLUDE_DIR}/typeDefs )
+
+SET( NOGGIN_TYPE_SRCS ${NOGGIN_TYPE_DIR}/BallInfo
+                      ${NOGGIN_TYPE_DIR}/VisualObjectInfo
+                      ${NOGGIN_TYPE_DIR}/MyInfo
+                      ${NOGGIN_TYPE_DIR}/Landmarks
+                      )
 
 
 SET( NOGGIN_PYTHON_SRCS ${NOGGIN_INCLUDE_DIR}/__init__.py
@@ -169,6 +185,8 @@ ADD_LIBRARY(
   ${NOGGIN_TARGET}
   STATIC
   ${NOGGIN_SRCS}
+  ${NOGGIN_TYPE_SRCS}
+  ${LOC_SRCS}
   )
 #INSTALL(
 #  TARGETS ${NOGGIN_TARGET}

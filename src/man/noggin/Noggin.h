@@ -12,6 +12,7 @@
 #include "GameController.h"
 #include "RoboGuardian.h"
 #include "Sensors.h"
+#include "Brain.h"
 
 //#define LOG_LOCALIZATION
 
@@ -75,6 +76,8 @@ private:
     PyObject *brain_module;
     PyObject *brain_instance;
     MotionInterface * motion_interface;
+
+    boost::shared_ptr<Brain> brain;
 
     // GC stuff
     bool registeredGCReset;

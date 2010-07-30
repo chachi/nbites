@@ -5,6 +5,7 @@
 #include "Common.h"
 #include "manconfig.h"
 
+// @TODO Use namespaces to separate field constants, e.g. Landmarks::, Field::
 // Nao field constants
 
 #ifdef USING_LAB_FIELD
@@ -68,6 +69,29 @@ static const float LANDMARK_YELLOW_GOAL_BOTTOM_POST_Y =
 static const float LANDMARK_YELLOW_GOAL_TOP_POST_Y =
     CENTER_FIELD_Y + CROSSBAR_CM_WIDTH / 2.0f;
 
+
+// RELATIVE goal post constants. All labeled as if you are "my" goalie staring
+// out of the goalbox. So OPP_LEFT is to MY goalie's left side.
+static const float LANDMARK_OPP_GOAL_RIGHT_POST_X =
+    LANDMARK_YELLOW_GOAL_BOTTOM_POST_X;
+static const float LANDMARK_OPP_GOAL_RIGHT_POST_Y =
+    LANDMARK_YELLOW_GOAL_BOTTOM_POST_Y;
+static const float LANDMARK_OPP_GOAL_LEFT_POST_X =
+    LANDMARK_YELLOW_GOAL_TOP_POST_X;
+static const float LANDMARK_OPP_GOAL_LEFT_POST_Y =
+    LANDMARK_YELLOW_GOAL_TOP_POST_Y;
+
+static const float LANDMARK_MY_GOAL_RIGHT_POST_X =
+    LANDMARK_BLUE_GOAL_BOTTOM_POST_X;
+static const float LANDMARK_MY_GOAL_RIGHT_POST_Y =
+    LANDMARK_BLUE_GOAL_BOTTOM_POST_Y;
+static const float LANDMARK_MY_GOAL_LEFT_POST_X =
+    LANDMARK_BLUE_GOAL_TOP_POST_X;
+static const float LANDMARK_MY_GOAL_LEFT_POST_Y =
+    LANDMARK_BLUE_GOAL_TOP_POST_Y;
+
+
+
 static const float CENTER_CIRCLE_RADIUS = 62.5f; // Not scaled
 
 #define SINGAPORE_FIELD_B
@@ -100,6 +124,16 @@ static const float YELLOW_GOALBOX_TOP_Y = MIDFIELD_Y + GOALBOX_WIDTH * .5f;
 static const float YELLOW_GOALBOX_LEFT_X =
     FIELD_WHITE_RIGHT_SIDELINE_X - GOALBOX_DEPTH;
 static const float YELLOW_GOALBOX_RIGHT_X = FIELD_WHITE_RIGHT_SIDELINE_X;
+
+static const float MY_GOALBOX_RIGHT_X   = BLUE_GOALBOX_RIGHT_X;
+static const float MY_GOALBOX_LEFT_X    = BLUE_GOALBOX_LEFT_X;
+static const float MY_GOALBOX_TOP_Y     = BLUE_GOALBOX_TOP_Y;
+static const float MY_GOALBOX_BOTTOM_Y  = BLUE_GOALBOX_BOTTOM_Y;
+
+static const float OPP_GOALBOX_RIGHT_X  = YELLOW_GOALBOX_RIGHT_X;
+static const float OPP_GOALBOX_LEFT_X   = YELLOW_GOALBOX_LEFT_X;
+static const float OPP_GOALBOX_TOP_Y    = YELLOW_GOALBOX_TOP_Y;
+static const float OPP_GOALBOX_BOTTOM_Y = YELLOW_GOALBOX_BOTTOM_Y;
 
 // Crosses on the Field
 #ifdef USING_LAB_FIELD
