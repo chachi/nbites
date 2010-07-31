@@ -1,19 +1,20 @@
 #ifndef _Landmarks_h_DEFINED
 #define _Landmarks_h_DEFINED
 
+
 #include "localization/LocSystem.h"
 #include "VisualObjectInfo.h"
-#include "VisualFieldObject.h"
 
+class VisualFieldObject;
 
 class FieldObjectInfo : public VisualObjectInfo
 {
 public:
-    FieldObjectInfo(int objectID);
+    FieldObjectInfo(VisualFieldObject * visualObject);
     virtual ~FieldObjectInfo();
 
     void updateLocalization(const LocSystem& loc);
-    void updateVision(const VisualFieldObject& obj );
+    virtual void updateVision();
 
     void associateWithFieldObject(float x, float y, int _relativeID);
 
@@ -30,6 +31,10 @@ public:
         OPP_GOAL_LEFT_POST_ID,
         OPP_GOAL_RIGHT_POST_ID
     };
+
+private:
+    VisualFieldObject * associatedFieldObject;
+
 };
 
 #endif /* _Landmarks_h_DEFINED */

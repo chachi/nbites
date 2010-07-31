@@ -1,14 +1,15 @@
 #include "Landmarks.h"
 
-FieldObjectInfo::FieldObjectInfo(int _ID) : VisualObjectInfo(), absoluteID(_ID)
+FieldObjectInfo::FieldObjectInfo(VisualFieldObject * visualObject) :
+    VisualObjectInfo(), absoluteID(visualObject->getID())
 {
-    // @TODO: Should set its absolute x and y
+
 }
 
-void FieldObjectInfo::updateVision(const VisualFieldObject& obj)
+void FieldObjectInfo::updateVision()
 {
-    VisualObjectInfo::updateVision(obj);
-    IDCertainty = obj.getIDCertainty();
+    VisualObjectInfo::updateVision(*associatedFieldObject);
+    IDCertainty = associatedFieldObject->getIDCertainty();
 }
 
 void FieldObjectInfo::associateWithFieldObject(float _x,

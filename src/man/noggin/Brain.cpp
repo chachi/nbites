@@ -2,8 +2,8 @@
 #include "Brain.h"
 
 using boost::shared_ptr;
-
 #include "ConcreteFieldObject.h"
+#include "typeDefs/Landmarks.h"
 
 Brain::Brain(shared_ptr<Vision> _vision,
              shared_ptr<LocSystem> _loc,
@@ -15,17 +15,12 @@ Brain::Brain(shared_ptr<Vision> _vision,
              shared_ptr<Profiler> _profiler) :
     vision(_vision), loc(_loc), ballLoc(_ballLoc), sensors(_sensors),
     comm(_comm), motion(_motion), guardian(_guardian), profiler(_profiler),
-    ball(), ygrp(YELLOW_GOAL_RIGHT_POST), yglp(YELLOW_GOAL_LEFT_POST),
-    bgrp(BLUE_GOAL_RIGHT_POST), bglp(BLUE_GOAL_LEFT_POST), my()
+    ball(vision->ball), ygrp(vision->ygrp), yglp(vision->yglp),
+    bgrp(vision->bgrp), bglp(vision->bglp), my(),
+    certificate(BirthCertificate::makeBirthCertificate())
 {
-    initFieldObjects();
     makeFieldObjectsRelative();
     initTeamMembers();
-}
-
-void Brain::initFieldObjects()
-{
-
 }
 
 void Brain::makeFieldObjectsRelative()
@@ -81,12 +76,16 @@ void Brain::run()
 
 void Brain::updateLocalization()
 {
-    ball.updateLoc(*ballLoc);
+    ball.updateLoc(ballLoc);
 }
 
 void Brain::updateVisionInfo()
 {
-    ball.updateVision(*vision->ball);
+    ball.updateVision();
+    ygrp.updateVision();
+    yglp.updateVision();
+    bgrp.updateVision();
+    bglp.updateVision();
 }
 
 void Brain::updateComm()

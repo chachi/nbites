@@ -135,6 +135,7 @@ SET( NOGGIN_SRCS ${NOGGIN_INCLUDE_DIR}/Noggin
                  ${NOGGIN_INCLUDE_DIR}/PyLoc
                  ${NOGGIN_INCLUDE_DIR}/NogginStructs.h
                  ${NOGGIN_INCLUDE_DIR}/Brain
+                 ${NOGGIN_INCLUDE_DIR}/robots/BirthCertificate
                  # ${NOGGIN_INCLUDE_DIR}/behavior/player/Player
                  # ${NOGGIN_INCLUDE_DIR}/behavior/navigator/Navigator
                  # ${NOGGIN_INCLUDE_DIR}/behavior/headTracker/HeadTracker

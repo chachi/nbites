@@ -1,20 +1,26 @@
 #include "BallInfo.h"
 
 
-void BallInfo::updateLoc(const BallEKF& ball)
+BallInfo::BallInfo(VisualBall * _visualBall) : VisualObjectInfo(),
+                                               visualBall(_visualBall)
 {
-    x          = ball.getXEst();
-    y          = ball.getYEst();
-    velX       = ball.getXVelocityEst() ;
-    velY       = ball.getYVelocityEst() ;
-    uncertX    = ball.getXUncert() ;
-    uncertY    = ball.getYUncert() ;
-    uncertVelX = ball.getXVelocityUncert() ;
-    uncertVelY = ball.getYVelocityUncert() ;
+
 }
 
-void BallInfo::updateVision(const VisualBall& ball)
+void BallInfo::updateLoc(boost::shared_ptr<BallEKF> ball)
 {
-    VisualObjectInfo::updateVision(ball);
-    confidence = ball.getConfidence();
+    x          = ball->getXEst();
+    y          = ball->getYEst();
+    velX       = ball->getXVelocityEst() ;
+    velY       = ball->getYVelocityEst() ;
+    uncertX    = ball->getXUncert() ;
+    uncertY    = ball->getYUncert() ;
+    uncertVelX = ball->getXVelocityUncert() ;
+    uncertVelY = ball->getYVelocityUncert() ;
+}
+
+void BallInfo::updateVision()
+{
+    VisualObjectInfo::updateVision(*visualBall);
+    confidence = visualBall->getConfidence();
 }

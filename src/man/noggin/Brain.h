@@ -4,28 +4,28 @@
 #include <boost/shared_ptr.hpp>
 
 
-// Other subsystem includes
+// Other subsystem includes and foward declarations
 #include "Comm.h"
-#include "localization/LocSystem.h"
-#include "MotionInterface.h"
-#include "RoboGuardian.h"
-#include "Sensors.h"
-#include "Vision.h"
-#include "localization/LocSystem.h"
+#include "Profiler.h"
+class Comm;
+class LocSystem;
+class MotionInterface;
+class RoboGuardian;
+class RoboGuardian;
+class Sensors;
+class Vision;
 
-
-// Behavior includes
-// #include "behavior/player/Player.h"
-// #include "behavior/navigator/Navigator.h"
-// #include "behavior/headTracker/HeadTracker.h"
-// #include "behavior/fallController/FallController.h"
-// #include "behavior/gameController/GameController.h"
+// Behavior modules
+// class Player;
+// class Navigator;
+// class HeadTracker;
+// class FallController;
 
 // Noggin information classes
 #include "typeDefs/BallInfo.h"
 #include "typeDefs/Landmarks.h"
 #include "typeDefs/MyInfo.h"
-
+#include "robots/BirthCertificate.h"
 
 
 class Brain
@@ -40,12 +40,11 @@ public:
           MotionInterface* _motion,
           boost::shared_ptr<RoboGuardian> _guardian,
           boost::shared_ptr<Profiler> _profiler);
-    virtual ~Brain() { };
+    virtual ~Brain();
 
     // Private member functions
 private:
     // Init methods
-    void initFieldObjects();
     void makeFieldObjectsRelative();
     void initTeamMembers();
 
@@ -64,18 +63,18 @@ private:
     boost::shared_ptr<BallEKF> ballLoc;
     boost::shared_ptr<Sensors> sensors;
     boost::shared_ptr<Comm>    comm;
-    boost::shared_ptr<MotionInterface> motion;
+    MotionInterface * motion;
     boost::shared_ptr<RoboGuardian> guardian;
     boost::shared_ptr<Profiler> profiler;
 
     // Behavior FSAs
 
     // Player player;
-    // Navigator navigator;
-    // HeadTracker tracker;
-    // FallController fallController;
-    // GameAwareness gameAwareness;
-    // LedController leds;
+    // boost::shared_ptr<Navigator> navigator;
+    // boost::shared_ptr<HeadTracker> tracker;
+    // boost::shared_ptr<FallController> fallController;
+    // boost::shared_ptr<GameAwareness> gameAwareness;
+    // boost::shared_ptr<LedController> leds;
 
     // Current info in Brain
 
@@ -83,14 +82,13 @@ private:
     BallInfo ball;
     FieldObjectInfo ygrp, yglp, bgrp, bglp;
     FieldObjectInfo * myGoalRightPost, * myGoalLeftPost,
-    * oppGoalRightPost,* oppGoalLeftPost;
-
+        * oppGoalRightPost, * oppGoalLeftPost;
 
     // Sensor info
     // Sonar sonar;
 
     // Self info
     MyInfo my;
-    // CoA coa;
+    BirthCertificate certificate;
 };
 #endif /* _Brain_h_DEFINED */

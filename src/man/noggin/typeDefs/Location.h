@@ -10,8 +10,8 @@ public:
     Location(float _x, float _y);
     virtual ~Location();
     float distTo(const Location& other) const {
-        return hypot(x - other.getX(),
-                     y - other.getY() ); }
+        return hypotf(x - other.getX(),
+                      y - other.getY() ); }
 
     float headingTo(const Location& other)  const{ atan2(other.getY() - y,
                                                          other.getX() - x); }
