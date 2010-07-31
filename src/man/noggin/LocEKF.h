@@ -15,6 +15,7 @@
 #include "NogginStructs.h"
 #include "Observation.h"
 #include "LocSystem.h"
+#include "nogginconfig.h"
 
 /**
  * @brief Class for tracking of loc position and velocity.  Extends the abstract
