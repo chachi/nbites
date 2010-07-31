@@ -969,6 +969,22 @@ public class DebugViewer extends JFrame {
 		lineIDMap.put(new Integer(75), yellow_goalbox_right_line);
 	}
 
+    public void swapField()
+    {
+        // Clear landmark maps
+        cornerIDMap.clear();
+        cornerMap.clear();
+        lineIDMap.clear();
+        lineIDStringMap.clear();
+        objectIDMap.clear();
+        objectIDStringMap.clear();
+
+        // Repopulate landmark maps
+        populateCornerMap();
+        populateObjectIDMap();
+		populateLineIDMap();
+    }
+
 
     public Dimension getMinimumSize()
     { return new Dimension(BOX_WIDTH,BOX_HEIGHT); }

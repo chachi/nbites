@@ -350,6 +350,7 @@ public class WorldController extends JPanel implements KeyListener,
         }
         // Takes care of sending info to the painter as well
         viewer.setField(the_field);
+        debugViewer.swapField();
     }
 
     /**

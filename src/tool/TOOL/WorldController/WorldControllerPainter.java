@@ -190,7 +190,7 @@ public class WorldControllerPainter implements RobotListener
         try {
             paintLandmarks(g2);
             paintRobotInformation(g2);
-			//paintEKFModels(g2);
+			paintEKFModels(g2);
 
             paintParticleSet(g2);
 
