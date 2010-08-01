@@ -108,7 +108,7 @@ public class WorldControllerPainter implements RobotListener
 		new LinkedList<LocalizationPacket>();
 
     // A tautological geometric constant
-    private boolean draw_real, draw_est;
+    private boolean draw_real, draw_est, draw_models;
 
     private double by_x,by_y;
     private double yb_x,yb_y;
@@ -144,6 +144,7 @@ public class WorldControllerPainter implements RobotListener
         viewer = panel;
         draw_real = true;
         draw_est = true;
+        draw_models = false;
         num_positions_to_draw = NUMBER_PREVIOUS_POSITIONS_TO_DRAW;
 
         by_x = -1;
@@ -190,11 +191,13 @@ public class WorldControllerPainter implements RobotListener
         try {
             paintLandmarks(g2);
             paintRobotInformation(g2);
-			paintEKFModels(g2);
+            if (draw_models){
+                paintEKFModels(g2);
+            }
 
             paintParticleSet(g2);
 
-			// Paint the estimatedPose data, from artificial data
+            // Paint the estimatedPose data, from artificial data
             paintEstRobotPose(g2);
             paintEstimateMeanAndVariance(g2);
             paintRealRobotPose(g2);
@@ -1105,5 +1108,11 @@ public class WorldControllerPainter implements RobotListener
         field.drawLine(drawing_on, in_color, field.DRAW_STROKE, x, y,
                        x + PARTICLE_HEADING_DIST*Math.cos(h),
                        y + PARTICLE_HEADING_DIST*Math.sin(h));
+    }
+
+    public void drawEKFModels(boolean draw)
+    {
+        draw_models = draw;
+        viewer.repaint();
     }
 }

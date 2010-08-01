@@ -10,6 +10,7 @@ import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.Vector;
 import java.text.DecimalFormat;
+import java.lang.Math;
 
 public class DebugViewer extends JFrame {
 
@@ -997,6 +998,11 @@ public class DebugViewer extends JFrame {
     }
 
     public void addLandmark(int id, float dist, float bearing) {
+
+        // addLandmark takes a bearing in radians,
+        // but converts to human-readable degrees!
+        bearing = (float)Math.toDegrees(bearing);
+
         if ( !objectIDMap.containsKey(new Integer(id)) &&
              !cornerIDMap.containsKey(new Integer(id)) &&
 			 !lineIDMap.containsKey(new Integer(id)) &&

@@ -145,6 +145,7 @@ public class LogBox extends JFrame implements ActionListener, ChangeListener
                 painter.clearSimulationHistory();
             }
             log.setLogMarker(thresh);
+            log.viewFromEKFLog();
         }
     }
 

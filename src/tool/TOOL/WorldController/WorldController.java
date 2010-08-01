@@ -153,6 +153,7 @@ public class WorldController extends JPanel implements KeyListener,
     public final static String UDP_LABEL_STRING = "UDP Viewer:";
     public final static String CONNECTION_LABEL_STRING = "Connection:";
     public final static String FPS_LABEL_STRING = "FPS Playback Speed:";
+    public final static String DRAW_MODELS_STRING = "Draw EKF Models";
     public final static String SWITCH_FIELDS_STRING = "Switch Fields";
     public final static String SWITCH_COLORS_STRING = "Switch Colors";
     public final static String SWITCH_TEAMS_STRING = "Switch Teams";
@@ -173,6 +174,7 @@ public class WorldController extends JPanel implements KeyListener,
     public static final String RELOAD_MCL_LOG_ACTION = "reloadmcllog";
     public static final String QUIT_MCL_LOG_ACTION = "quitekflog";
     public static final String RELOAD_EKF_LOG_ACTION = "reloadekflog";
+    public static final String DRAW_EKF_MODELS_LOG_ACTION = "drawekfmodelslog";
     public static final String QUIT_EKF_LOG_ACTION = "quitekflog";
     public static final String CONNECT_ACTION = "connectme";
     public static final String DISCONNECT_ACTION = "disconnectme";
@@ -255,6 +257,7 @@ public class WorldController extends JPanel implements KeyListener,
     private JButton button_one;
     private JButton button_two;
     private JButton button_three;
+    private JToggleButton button_four;
     private JTextField field_one;
     private JButton connect_button;
     private JButton draw_real_button;
@@ -376,6 +379,8 @@ public class WorldController extends JPanel implements KeyListener,
             reloadMCLLog();
         } else if (cmd.equals(VIEW_MCL_LOG_ACTION)) {
             startMCLLog();
+        } else if (cmd.equals(DRAW_EKF_MODELS_LOG_ACTION)) {
+            drawEKFModels();
         } else if (cmd.equals(QUIT_EKF_LOG_ACTION)) {
             log.quitMCLLog();
             startDoNothing();
@@ -469,6 +474,10 @@ public class WorldController extends JPanel implements KeyListener,
         button_three.addActionListener(this);
         button_area.add(button_three);
         button_three.setVisible(false);
+        button_four = new JToggleButton(DISCONNECT_STRING);
+        button_four.addActionListener(this);
+        button_area.add(button_four);
+        button_four.setVisible(false);
         field_one = new JTextField();
         field_one.addActionListener(this);
         button_area.add(field_one);
@@ -524,6 +533,9 @@ public class WorldController extends JPanel implements KeyListener,
         button_three.setText(QUIT_LOG_STRING);
         button_three.setActionCommand(QUIT_EKF_LOG_ACTION);
         button_three.setVisible(true);
+        button_four.setText(DRAW_MODELS_STRING);
+        button_four.setActionCommand(DRAW_EKF_MODELS_LOG_ACTION);
+        button_four.setVisible(true);
         fps_label.setVisible(true);
         fps_slide.setVisible(true);
     }
@@ -725,6 +737,12 @@ public class WorldController extends JPanel implements KeyListener,
             nothingButtons();
             return;
         }
+    }
+
+    // Toggles drawing ekf models
+    public void drawEKFModels()
+    {
+        painter.drawEKFModels(button_four.isSelected());
     }
 
 }
