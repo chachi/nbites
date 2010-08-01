@@ -93,6 +93,7 @@ bool MMLocEKF::applyUnambiguousObservations(vector<Observation>& Z)
             ++obs;
         }
     }
+    consolidateModels();
     return appliedObs;
 }
 
@@ -182,6 +183,21 @@ void MMLocEKF::endFrame()
 
     consolidateModels(MAX_ACTIVE_MODELS);
     normalizeProbabilities(modelList, PROB_SUM);
+#ifdef DEBUG_ACTIVE_PROBS
+
+#endif
+
+#ifdef DEBUG_ACTIVE_PROBS
+    if (numActive > 1){
+    cout << "Model Probabilities:";
+    for (int i=0; i < MAX_MODELS; ++i){
+        if (models[i]->isActive()){
+            cout << setprecision(3) << " " << models[i]->getProbability();
+        }
+    }
+    cout << endl;
+    }
+#endif /* DEBUG_ACTIVE_PROBS */
 }
 
 void MMLocEKF::normalizeProbabilities(const list<LocEKF*>& unnormalized,
@@ -233,7 +249,8 @@ bool MMLocEKF::consolidateModels(int maxAfterMerge)
     }
 
     bool shouldMergeAgain = true;
-    while (numActive > maxAfterMerge){
+    while ((numActive > maxAfterMerge || numMerges == 0) &&
+           numMerges < 5){
         mergeThreshold += MERGE_THRESH_STEP;
 
 #ifdef DEBUG_MERGING
@@ -246,9 +263,16 @@ bool MMLocEKF::consolidateModels(int maxAfterMerge)
     }
 
 #ifdef DEBUG_MERGING
-    cout << "\t" << numActive << " models remaining after consolidation." << endl;
+    cout << "\t" << numActive << " models remaining after consolidation: ";
+    for (int i = 0; i < MAX_MODELS; ++i)
+    {
+        if (models[i]->isActive())
+            cout << " " << i;
+    }
+    cout << endl;
 #endif
 
+    normalizeProbabilities(modelList, PROB_SUM);
     return true;
 }
 
@@ -275,7 +299,15 @@ bool MMLocEKF::mergeable(double mergeThreshold, LocEKF* one, LocEKF* two)
     if (!one->isActive() || !two->isActive() || one == two)
         return false;
 
-    const LocEKF::StateVector diff = one->getState() - two->getState();
+    LocEKF::StateVector oneState = one->getState();
+    LocEKF::StateVector twoState = two->getState();
+
+    LocEKF::StateVector diff(3,0.0f);
+    diff(0) = oneState(0) - twoState(0);
+    diff(1) = oneState(1) - twoState(1);
+
+    const float diffTheta = oneState(2) - twoState(2);
+    diff(2) = atan2(sin(diffTheta), cos(diffTheta));
 
     LocEKF::StateMatrix oneUncert = one->getStateUncertainty();
     LocEKF::StateMatrix twoUncert = two->getStateUncertainty();
@@ -284,29 +316,27 @@ bool MMLocEKF::mergeable(double mergeThreshold, LocEKF* one, LocEKF* two)
                                      twoUncert * two->getProbability());
 
 
-    float denom = (-uncertSum(0,1) * uncertSum(1,0) +
-                   uncertSum(0,0) * uncertSum(1,1));
-
-    // Prevent divide by zero errors in the metric
-    if (denom < 0.0001)
-        denom = 0.00001f;
-
-    LocEKF::StateMatrix uncertSumInv = uncertSum;
-
-    uncertSumInv(0,0) = uncertSum(1,1)/denom;
-    uncertSumInv(0,1) = 0.0f;
-    uncertSumInv(1,0) = 0.0f;
-    uncertSumInv(1,1) = uncertSum(0,0)/denom;
+    LocEKF::StateMatrix uncertSumInv(3,3,0.0f);
+    uncertSumInv(0,0) = 1./uncertSum(0,0);
+    uncertSumInv(1,1) = 1./uncertSum(1,1);
+    uncertSumInv(2,2) = 1./uncertSum(2,2);
 
     const double metric = abs(one->getProbability() * two->getProbability() *
-                              inner_prod(trans(diff), prod(uncertSumInv, diff)));
+                              inner_prod(trans(diff),
+                                         prod(uncertSumInv, diff)));
 
 #ifdef DEBUG_MERGING_THRESH
-    cout << "\tMetric between " << *one << endl <<
-        " and " << endl << *two << endl
-         <<" is " << metric << endl;
-    cout << "\tDiff is " << diff << endl;
-    cout << "\tInverse sum is" << uncertSumInv << endl;
+    cout << endl << endl << "\tMetric between " << endl
+         << "\t" << *one << endl
+         << "\tand" << endl << "\t" << *two << endl
+         <<"\tis " << metric << endl << endl
+         << "\tDiff is " << diff << endl
+         << "\tInverse sum is" << uncertSumInv << endl;
+    if (metric < mergeThreshold)
+        cout << "\t\tMERGING" << endl;
+    else
+        cout << "\t\tNOT MERGING" << endl;
+
 #endif
 
     return (metric < mergeThreshold);

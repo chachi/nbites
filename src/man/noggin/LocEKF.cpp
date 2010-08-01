@@ -276,13 +276,11 @@ bool LocEKF::applyObservation(Observation Z)
 
     correctionStep(Z);
     updateState();
-
 #ifdef USE_MM_LOC_EKF
     return updateProbability(Z);
 #else
-    return true;
+    return false;
 #endif
-
 }
 
 #ifdef USE_MM_LOC_EKF
@@ -295,50 +293,32 @@ bool LocEKF::updateProbability(const Observation& Z)
 
     const MeasurementMatrix measurementVar = R_k + R_pred_k;
 
-    MeasurementMatrix measurementVarInv = measurementVar;
-    const double denom = (-measurementVar(0,1) * measurementVar(1,0) +
-                          measurementVar(0,0) * measurementVar(1,1));
+    MeasurementMatrix measurementVarInv = NBMath::invert2by2(measurementVar);
 
-    if (denom < 0.0001){
-        probability *= 0.0001;
-        return true;
-    }
-
-    measurementVarInv(0,0) = measurementVar(1,1)/denom;
-    measurementVarInv(0,1) = -measurementVar(0,1)/denom;
-    measurementVarInv(1,0) = -measurementVar(1,0)/denom;
-    measurementVarInv(1,1) = measurementVar(0,0)/denom;
-
-    v_k(0) = abs(v_k(0));
-    v_k(1) = abs(v_k(1));
-    v_k(2) = abs(v_k(2));
+    // v_k(0) = abs(v_k(0));
+    // v_k(1) = abs(v_k(1));
+    // v_k(2) = abs(v_k(2));
 
     // We need the measurement innovation or invariance, aka v_k
     const double exponent = -0.5 * inner_prod(trans(v_k),
                                               prod(measurementVarInv, v_k));
 
-    if (abs(exponent) > 2.25){
-
-#ifdef DEBUG_PROBABILITY
-        cout << "\nOutlier detected: " << endl
-             << "\tExponent: " << exponent << endl
-             << "\tInvariance: " << v_k << endl
-             << "\tVariance Sum: " << measurementVar << endl;
-#endif
-
-        return true;
+    bool isOutlier = false;
+    if (abs(exponent) > 10.0){
+        isOutlier = true;
     }
 
     double detMeasVar = (-measurementVar(0,1) * measurementVar(1,0) +
                          measurementVar(0,0) * measurementVar(1,1));
-    if (detMeasVar < 0.0001)
+    if (detMeasVar < 1e-08)
         detMeasVar = 1e-08;
     const double coefficient = 1 / sqrt( pow(2 * PI,
                                              LOC_MEASUREMENT_DIMENSION) *
                                          detMeasVar );
 
     const double outlierProb = 0.08;
-    const double probCo = (1-outlierProb)*(pow(M_E, exponent)) + outlierProb;
+    const double probCo = (1-outlierProb)*(// coefficient *
+                                           pow(M_E, exponent)) + outlierProb;
 
 #ifdef DEBUG_PROBABILITY
     cout << "\nUpdating probability" << endl
@@ -350,7 +330,20 @@ bool LocEKF::updateProbability(const Observation& Z)
 #endif
 
     probability *= probCo;
-    return false;
+
+    if (isOutlier){
+
+#ifdef DEBUG_PROBABILITY
+        cout << "\nOutlier detected: " << endl
+             << "\tExponent: " << exponent << endl
+             << "\tInvariance: " << v_k << endl
+             << "\tVariance Sum: " << measurementVar << endl;
+#endif
+
+        return true;
+    } else {
+        return false;
+    }
 }
 
 #endif
@@ -516,6 +509,7 @@ void LocEKF::incorporateCartesianMeasurement(int obsIndex,
     R_k(1,0) = v;
     R_k(1,1) = dist_sd_2 * pow(sin(z.getVisBearing()), 2);
 
+#ifdef USE_MM_LOC_EKF
     const double uncertX = getXUncert();
     const double uncertY = getYUncert();
     const double uncertH = getHUncert();
@@ -526,7 +520,7 @@ void LocEKF::incorporateCartesianMeasurement(int obsIndex,
     const float xInvariance = abs(x_b -x);
     const float yInvariance = abs(y_b -y);
 
-#ifdef USE_MM_LOC_EKF
+
     R_pred_k(0,0) = ((uncertX / xInvariance + coshUncert / cosh) +
                      (uncertY / yInvariance + sinhUncert / sinh));
     R_pred_k(0,1) = 0;

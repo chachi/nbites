@@ -33,7 +33,7 @@ private:                        // Private methods
     void applyNoCorrectionStep();
 
     void splitObservation(const Observation& obs, LocEKF * model);
-    bool consolidateModels(int maxAfterMerge);
+    bool consolidateModels(int maxAfterMerge = MAX_ACTIVE_MODELS);
 
     void mergeModels(double mergeThreshold);
 
@@ -65,7 +65,7 @@ private:                        // Private variables
     vector<Observation> lastObservations;
 
     const static double PROB_SUM = 1.0;
-    const static double MERGE_THRESH_INIT = 0.01f;
+    const static double MERGE_THRESH_INIT = 0.1f;
     const static double MERGE_THRESH_STEP = 0.05f;
     const static int MAX_ACTIVE_MODELS = 6;
     const static double OUTLIER_PROB_LIMIT = 0.005;
