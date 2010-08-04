@@ -117,14 +117,30 @@ void MMLocEKF::applyNoCorrectionStep()
 
 bool MMLocEKF::applyAmbiguousObservations(const vector<Observation>& Z)
 {
+#ifdef DEBUG_AMBIGUOUS
+    cout << "\tApplying " << Z.size() << " ambiguous observations." << endl;
+#endif /* DEBUG_AMBIGUOUS */
+
     bool applied = false;
     if (!Z.empty())
         applied = true;
 
+    list<int> activeModels;
     for (int i=0; i < MAX_MODELS ; ++i){
-        vector<Observation>::const_iterator obs;
-        for (obs = Z.begin(); obs != Z.end() ; ++obs){
-            splitObservation(*obs, models[i]);
+        if (models[i]->isActive())
+            activeModels.push_back(i);
+    }
+
+    list<int>::iterator model;
+    vector<Observation>::const_iterator obs;
+    for (obs = Z.begin(); obs != Z.end() ; ++obs){
+        for (model = activeModels.begin(); model != activeModels.end(); ++model)
+        {
+#ifdef DEBUG_AMBIGUOUS
+            cout << "Applying " << *obs << " to model " << *model << endl;
+#endif /* DEBUG_AMBIGUOUS */
+
+            splitObservation(*obs, models[*model]);
         }
     }
     return applied;
@@ -141,6 +157,11 @@ void MMLocEKF::splitObservation(const Observation& obs, LocEKF * model)
     //  consolidated = consolidateModels(MAX_MODELS - numRequiredModels);
 
     // @TODO Better handling of too few free models
+#ifdef DEBUG_AMBIGUOUS
+    cout << "\tSplitting model " << *model << endl << "\tinto " <<
+        obs.getNumPossibilities() << " models" << endl;
+#endif /* DEBUG_AMBIGUOUS */
+
     for (unsigned int i=0; i < obs.getNumPossibilities(); ++i){
         if (numFree < 1){
             break;
@@ -155,6 +176,11 @@ void MMLocEKF::splitObservation(const Observation& obs, LocEKF * model)
         } else{
             newObs.setPointPossibility(obs.getPointPossibilities()[i] );
         }
+#ifdef DEBUG_AMBIGUOUS
+            cout << "SPLIT: Applying " << obs
+                 << " to model " << *inactiveModel << endl;
+#endif /* DEBUG_AMBIGUOUS */
+
         bool isOutlier = inactiveModel->applyObservation(newObs);
         if (!isOutlier) {
             activateModel(inactiveModel);
@@ -164,10 +190,11 @@ void MMLocEKF::splitObservation(const Observation& obs, LocEKF * model)
 
     // If every possibility is an outlier and the original model was the only
     // model to start with, than we need to keep this model active.
-    if (numActive > 1) {
+    if (splitModels.size() > 0) {
         deactivateModel(model);
-        consolidateModels(MAX_ACTIVE_MODELS);
-        normalizeProbabilities(splitModels, originalProb);
+        normalizeProbabilities(modelList, PROB_SUM);
+        consolidateModels();
+        normalizeProbabilities(modelList, PROB_SUM);
     } else {
         model->updateState();
     }
@@ -229,6 +256,11 @@ void MMLocEKF::normalizeProbabilities(const list<LocEKF*>& unnormalized,
 // Returns true if consolidation was successful
 bool MMLocEKF::consolidateModels(int maxAfterMerge)
 {
+
+#ifdef DEBUG_MERGING
+    cout << "Consolidating " << numActive << " models" << endl;
+#endif /* DEBUG_MERGING */
+
     double mergeThreshold = MERGE_THRESH_INIT;
     int numMerges = 0;
 
@@ -288,6 +320,10 @@ void MMLocEKF::mergeModels(double mergeThreshold)
                      << *models[j] << endl;
 #endif
                 models[i]->mergeEKF(*models[j]);
+
+#ifdef DEBUG_MERGING
+                cout << "Merged model: " << *models[i] << endl;
+#endif /* DEBUG_MERGING */
                 deactivateModel(models[j]);
             }
         }

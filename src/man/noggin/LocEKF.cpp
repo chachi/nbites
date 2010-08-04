@@ -291,41 +291,37 @@ bool LocEKF::updateProbability(const Observation& Z)
         return true;
     }
 
-    const MeasurementMatrix measurementVar = R_k + R_pred_k;
+    MeasurementMatrix measVar = R_k * 2;
 
-    MeasurementMatrix measurementVarInv = NBMath::invert2by2(measurementVar);
-
-    // v_k(0) = abs(v_k(0));
-    // v_k(1) = abs(v_k(1));
-    // v_k(2) = abs(v_k(2));
+    MeasurementMatrix measVarInv = NBMath::invert2by2(measVar);
 
     // We need the measurement innovation or invariance, aka v_k
-    const double exponent = -0.5 * inner_prod(trans(v_k),
-                                              prod(measurementVarInv, v_k));
+    const double measError =  inner_prod(trans(v_k),
+                                         prod(measVarInv, v_k));
+    const double exponent = measError * -0.5;
 
     bool isOutlier = false;
-    if (abs(exponent) > 10.0){
+    if (measError > 3.0){
         isOutlier = true;
     }
 
-    double detMeasVar = (-measurementVar(0,1) * measurementVar(1,0) +
-                         measurementVar(0,0) * measurementVar(1,1));
+    double detMeasVar = (-measVar(0,1) * measVar(1,0) +
+                         measVar(0,0) * measVar(1,1));
     if (detMeasVar < 1e-08)
         detMeasVar = 1e-08;
-    const double coefficient = 1 / sqrt( pow(2 * PI,
-                                             LOC_MEASUREMENT_DIMENSION) *
-                                         detMeasVar );
-
-    const double outlierProb = 0.08;
-    const double probCo = (1-outlierProb)*(// coefficient *
-                                           pow(M_E, exponent)) + outlierProb;
+    const double coefficient = 1 / sqrt(pow(2. * PI,
+                                            LOC_MEASUREMENT_DIMENSION) *
+                                        ( detMeasVar ));
+    const double outlierProb = 0.03;
+    const double probCo = (1-outlierProb)* (//coefficient *
+                                            pow(M_E, exponent)) + outlierProb;
 
 #ifdef DEBUG_PROBABILITY
     cout << "\nUpdating probability" << endl
          << "\tInnovation: " << v_k << endl
-         << "\tVariance sum: " << measurementVar << endl
+         << "\tVariance sum: " << measVar << endl
          << "\tExponent: " << exponent << endl
-         << "\tProb. coefficent: " << probCo << endl
+         << "\tProb. coefficient: " << probCo << endl
          << "\tProbability:" << probability << endl;
 #endif
 
@@ -337,7 +333,7 @@ bool LocEKF::updateProbability(const Observation& Z)
         cout << "\nOutlier detected: " << endl
              << "\tExponent: " << exponent << endl
              << "\tInvariance: " << v_k << endl
-             << "\tVariance Sum: " << measurementVar << endl;
+             << "\tVariance Sum: " << measVar << endl;
 #endif
 
         return true;
@@ -357,7 +353,7 @@ bool LocEKF::updateProbability(const Observation& Z)
  */
 void LocEKF::endFrame()
 {
-
+    updateState();
     // Clip values if our estimate is off the field
     clipRobotPose();
     if (testForNaNReset()) {
@@ -673,7 +669,6 @@ void LocEKF::incorporatePolarMeasurement(int obsIndex,
                                       0.00000001f);
         const float yInvariance = max(abs(y - y_b),
                                       0.00000001f);
-
 
         R_pred_k(0,0) = ((uncertX/xInvariance) + (uncertY/yInvariance) /
                          (xInvariance*xInvariance + yInvariance*yInvariance));
