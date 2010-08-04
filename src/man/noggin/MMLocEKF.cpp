@@ -2,7 +2,9 @@
 
 // #define DEBUG_MERGING
 // #define DEBUG_MERGING_THRESH
-//#define DEBUG_SMALL_PROB
+// #define DEBUG_SMALL_PROB
+// #define DEBUG_ACTIVE_PROBS
+// #define DEBUG_AMBIGUOUS
 
 // @todo implement mostLikelyModel tracking
 MMLocEKF::MMLocEKF() :

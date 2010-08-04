@@ -1,10 +1,10 @@
 #include "LocEKF.h"
 #include <boost/numeric/ublas/io.hpp> // for cout
 #include "FieldConstants.h"
-//#define DEBUG_LOC_EKF_INPUTS
+// #define DEBUG_LOC_EKF_INPUTS
 //#define DEBUG_STANDARD_ERROR
-//#define DEBUG_PROBABILITY
-//#define DEBUG_R_PRED
+// #define DEBUG_PROBABILITY
+// #define DEBUG_R_PRED
 using namespace boost::numeric;
 using namespace boost;
 using namespace std;
