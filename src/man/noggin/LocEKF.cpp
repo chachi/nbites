@@ -305,13 +305,11 @@ bool LocEKF::updateProbability(const Observation& Z)
         isOutlier = true;
     }
 
-    double detMeasVar = (-measVar(0,1) * measVar(1,0) +
-                         measVar(0,0) * measVar(1,1));
-    if (detMeasVar < 1e-08)
-        detMeasVar = 1e-08;
-    const double coefficient = 1 / sqrt(pow(2. * PI,
-                                            LOC_MEASUREMENT_DIMENSION) *
-                                        ( detMeasVar ));
+    const double detMeasVar = max((-measVar(0,1) * measVar(1,0) +
+                                   measVar(0,0) * measVar(1,1)), 1e-08f);
+    // const double coefficient = 1 / sqrt(pow(2. * PI,
+    //                                         LOC_MEASUREMENT_DIMENSION) *
+    //                                     ( detMeasVar ));
     const double outlierProb = 0.03;
     const double probCo = (1-outlierProb)* (//coefficient *
                                             pow(M_E, exponent)) + outlierProb;

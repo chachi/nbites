@@ -48,7 +48,7 @@ private:                        // Private methods
 
 private:                        // Private variables
 
-    const static int MAX_MODELS = 30;
+    const static int MAX_MODELS = 15;
 
     LocEKF* models[MAX_MODELS];
     list<LocEKF*> modelList;
@@ -65,7 +65,7 @@ private:                        // Private variables
     vector<Observation> lastObservations;
 
     const static double PROB_SUM = 1.0;
-    const static double MERGE_THRESH_INIT = 0.1f;
+    const static double MERGE_THRESH_INIT = 0.00f;
     const static double MERGE_THRESH_STEP = 0.05f;
     const static int MAX_ACTIVE_MODELS = 6;
     const static double OUTLIER_PROB_LIMIT = 0.005;
