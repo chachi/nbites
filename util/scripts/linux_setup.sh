@@ -9,7 +9,7 @@ echo "Downloading awesome free stuff! Also accept the Sun Java licence by \
 pressing TAB!"
 
 PACKAGES="build-essential cmake git-core sun-java6-jdk \
-python2.6-dev emacs cmake-curses-gui ccache curl aptitude"
+python2.6-dev emacs cmake-curses-gui ccache curl ant"
 
 while [[ $IS64BIT != 'n' && $IS64BIT != 'y' ]]; do
     echo "Are you on 64-bit linux? [y/n]"
