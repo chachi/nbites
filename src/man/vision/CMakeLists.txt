@@ -205,12 +205,12 @@ ENDIF( VISIONLINK )
 
 
 
-# add_executable( OfflineVision ${VISION_INCLUDE_DIR}/offline/OfflineVision.cpp )
-# target_link_libraries( OfflineVision
-#   ${VISION_TARGET}
-#   ${SENSORS_TARGET}
-#   ${NBINCLUDE_TARGET}
-#   )
+add_executable( OfflineVision ${VISION_INCLUDE_DIR}/offline/OfflineVision.cpp )
+target_link_libraries( OfflineVision
+  ${VISION_TARGET}
+  ${SENSORS_TARGET}
+  ${NBINCLUDE_TARGET}
+  )
 
 # enable_testing()
 # add_test( EdgeDetectorTest  EdgeDetectorTest )

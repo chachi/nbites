@@ -35,6 +35,8 @@
 #include "Speech.h"
 #include "BulkMonitor.h"
 
+#include "ColorParams.h"
+
 enum SupportFoot {
     LEFT_SUPPORT = 0,
     RIGHT_SUPPORT
@@ -213,7 +215,7 @@ public:
 
     // Save a vision frame with associated sensor data
     void saveFrame();
-    void loadFrame(std::string path);
+    void loadFrame(std::string path, uint8_t* table, const ColorParams& params);
     void resetSaveFrame();
     void startSavingFrames();
     void stopSavingFrames();

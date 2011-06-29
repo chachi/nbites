@@ -9,7 +9,7 @@
 
 #include "ThreadedImageTranscriber.h"
 #include "synchro.h"
-#include "ColorParams.h"
+x#include "ColorParams.h"
 
 class ALImageTranscriber : public ThreadedImageTranscriber {
 public:

@@ -33,6 +33,7 @@ using namespace boost::assign;
 using namespace boost::lambda;
 
 #include "Sensors.h"
+#include "ImageAcquisition.h"
 
 #include "corpusconfig.h"
 #include "NBMath.h"
@@ -1042,11 +1043,13 @@ void Sensors::saveFrame()
     cout << "Saved frame #" << saved_frames++ << endl;
 }
 
+
+
 /**
  * Load a frame from a file and set the sensors and image data as
  * appropriate. Useful for running offline.
  */
-void Sensors::loadFrame(string path)
+void Sensors::loadFrame(string path, uint8_t*table, const ColorParams& params)
 {
     fstream fin(path.c_str() , fstream::in);
     if (fin.fail()){
@@ -1058,22 +1061,19 @@ void Sensors::loadFrame(string path)
     // Load the image from the file, puts it straight into Sensors'
     // image buffer so it doesn't have to allocate its own buffer and
     // worry about deleting it
-    uint16_t * img = const_cast<uint16_t*>(getImage());
-    uint8_t * byte_img = new uint8_t[320 * 240 * 2];
-    fin.read(reinterpret_cast<char *>(byte_img), 320 * 240 * 2);
-    releaseImage();
-
-    lockImage();
-
-    // Translate the loaded image into the proper format.
-    // @TODO: Convert images to new format.
-    for (int i=0; i < 320*240; ++i){
-        img[i] = 0;
-        img[i] = static_cast<uint16_t>(byte_img[i<<1]);
+    uint8_t * nao_img = (new uint8_t[NAO_IMAGE_BYTE_SIZE]);
+    if (getNaoImage() == NULL){
+        setRawNaoImage(nao_img);
     }
-    delete byte_img;
+
+    fin.read((char*)nao_img, NAO_IMAGE_BYTE_SIZE);
+    ImageAcquisition::acquire_image_fast(table,
+                                         params,
+                                         nao_img,
+                                         const_cast<uint16_t*>(yImage));
 
     releaseImage();
+
     float v;
     int version;
     string space;
