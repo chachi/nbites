@@ -21,6 +21,9 @@ def gameSet(player):
 
 def gamePlaying(player):
 
+    if player.firstFrame:
+        player.brain.tracker.performHeadMove(HeadMoves.OFF_HEADS)
+
     #if player.brain.ball.vis.on:
     # player.brain.sensors.saveFrame()
     # player.numFramesSaved += 1

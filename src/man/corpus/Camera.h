@@ -56,15 +56,15 @@ public:
     static const int DEFAULT_GAIN = 30;
     static const bool DEFAULT_AUTO_WHITEBALANCE = false; // AUTO WB OFF
     static const int DEFAULT_BLUECHROMA = 113;
-    static const int DEFAULT_REDCHROMA = 60;
-    static const int DEFAULT_BRIGHTNESS = 154;
-    static const int DEFAULT_CONTRAST = 85;
+    static const int DEFAULT_REDCHROMA = 82;
+    static const int DEFAULT_BRIGHTNESS = 106;
+    static const int DEFAULT_CONTRAST = 82;
     static const int DEFAULT_SATURATION = 140;
     static const int DEFAULT_HUE = 0;
     static const int DEFAULT_LENSX = 0;
     static const int DEFAULT_LENSY = 0;
     static const bool DEFAULT_AUTO_EXPOSITION = false; // AUTO EXPOSURE OFF
-    static const int DEFAULT_EXPOSURE = 129;
+    static const int DEFAULT_EXPOSURE = 155;
 
 
     static const Settings getDefaultSettings() {
