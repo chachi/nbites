@@ -99,8 +99,24 @@ public class ThresholdedImage extends TOOLImage {
     protected void initImage(BufferedImage img) {
         for (int y = 0; y < getHeight(); y++){
             for (int x = 0; x < getWidth(); x++){
-                if (thresholded[y][x] < COLORS.length)
-                    img.setRGB(x, y, COLORS[thresholded[y][x]].getRGB());
+                byte col = thresholded[y][x];
+                if( (Vision.WHITE_BIT & col) > 0){
+                    img.setRGB(x,y, COLORS[Vision.WHITE].getRGB());
+                } else if( (Vision.GREEN_BIT & col) > 0){
+                    img.setRGB(x,y, COLORS[Vision.GREEN].getRGB());
+                } else if( (Vision.BLUE_BIT & col) > 0){
+                    img.setRGB(x,y, COLORS[Vision.BLUE].getRGB());
+                } else if( (Vision.YELLOW_BIT & col) > 0){
+                    img.setRGB(x,y, COLORS[Vision.YELLOW].getRGB());
+                } else if( (Vision.ORANGE_BIT & col) > 0){
+                    img.setRGB(x,y, COLORS[Vision.ORANGE].getRGB());
+                } else if( (Vision.RED_BIT & col) > 0){
+                    img.setRGB(x,y, COLORS[Vision.RED].getRGB());
+                } else if( (Vision.NAVY_BIT & col) > 0){
+                    img.setRGB(x,y, COLORS[Vision.NAVY].getRGB());
+                } else {
+                    img.setRGB(x,y, COLORS[Vision.GREY].getRGB());
+                }
             }
         }
     }

@@ -56,6 +56,15 @@ public interface Vision {
     public static final byte MAGENTA = 26;
     public static final byte PURPLE = 27;
 
+   public static final byte GREY_BIT = 0x00;
+   public static final byte WHITE_BIT = 0x01;
+   public static final byte GREEN_BIT = 0x02;
+   public static final byte BLUE_BIT = 0x04;
+   public static final byte YELLOW_BIT = 0x08;
+   public static final byte ORANGE_BIT = 0x10;
+   public static final byte RED_BIT = 0x20;
+   public static final byte NAVY_BIT = 0x40;
+
     public static final String[] COLOR_STRINGS = {
 	"Undefined", "White", "Green", "Blue",
 	"Yellow", "Orange", "Yellow/White", "Blue/Green",

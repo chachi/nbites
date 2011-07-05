@@ -78,17 +78,6 @@ public class TOOLVisionLink {
 	public static final byte GREY = Vision.GREY;
     public static final byte NAVY = Vision.NAVY;
 
-    public static final byte BIT_GREY = 0x00;
-    public static final byte BIT_WHITE = 0x01;
-    public static final byte BIT_GREEN = 0x02;
-    public static final byte BIT_BLUE = 0x04;
-    public static final byte BIT_YELLOW = 0x08;
-    public static final byte BIT_ORANGE = 0x10;
-    public static final byte BIT_RED = 0x20;
-    public static final byte BIT_NAVY = 0x40;
-    public static final int BIT_DRAWING = 0x80;
-    public static final byte BIT_MASK = 0x7e;
-
     //image dimensions
     private int width;
     private int height;
@@ -174,39 +163,39 @@ public class TOOLVisionLink {
 							col == Vision.BLACK ||
 							col == Vision.RED ||
 							col == Vision.ORANGE) {
-                        } else if ((col & BIT_ORANGE) > 0) {
-                            if ((col & BIT_RED) > 0) {
+                        } else if ((col & Vision.ORANGE_BIT) > 0) {
+                            if ((col & Vision.RED_BIT) > 0) {
                                 col = ORANGERED;
                             }
-                            else if ((col & BIT_YELLOW) > 0) {
+                            else if ((col & Vision.YELLOW_BIT) > 0) {
                                 col = ORANGEYELLOW;
                             } else {
                                 col = ORANGE;
                             }
                         }
-                        else if ((col & BIT_GREEN) > 0) {
-                            if ((col & BIT_BLUE) > 0) {
+                        else if ((col & Vision.GREEN_BIT) > 0) {
+                            if ((col & Vision.BLUE_BIT) > 0) {
                                 col = BLUEGREEN;
                             } else {
                                 col = GREEN;
                             }
                         }
-                        else if ((col & BIT_BLUE) > 0) {
+                        else if ((col & Vision.BLUE_BIT) > 0) {
                             col = BLUE;
-                        } else if ((col & BIT_NAVY) > 0) {
+                        } else if ((col & Vision.NAVY_BIT) > 0) {
                             col = NAVY;
                         }
-                        else if ((col & BIT_YELLOW) > 0) {
-                            if ((col & BIT_WHITE) > 0) {
+                        else if ((col & Vision.YELLOW_BIT) > 0) {
+                            if ((col & Vision.WHITE_BIT) > 0) {
                                 col = YELLOWWHITE;
                             } else {
                                 col = YELLOW;
                             }
                         }
-                        else if ((col & BIT_WHITE) > 0) {
+                        else if ((col & Vision.WHITE_BIT) > 0) {
                             col = WHITE;
                         }
-                        else if ((col & BIT_RED) > 0) {
+                        else if ((col & Vision.RED_BIT) > 0) {
                             col = RED;
                         }
                         threshResult[j][i] = col;
