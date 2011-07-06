@@ -3,10 +3,6 @@
 # to search a predefined gait space (motion/gaits/GaitLearnBoundaries.py) for an 
 # optimal set of parameters.
 #
-# Things that need to happen before team-wide gait optimization can start:
-# (list current as of 5/7/11)
-#
-# @todo (Motion) change engine to walk in place before beginning to move
 #
 # @author Nathan Merritt
 # @date May 2011
@@ -37,7 +33,7 @@ except:
    import pickle
 
 PICKLE_FILE_PREFIX = '/home/nao/gaits/'
-NUM_PARTICLES = 20
+NUM_PARTICLES = 25
 
 PSO_STATE_FILE = PICKLE_FILE_PREFIX + "PSO_pGaitLearner.pickle"
 BEST_GAIT_FILE = PICKLE_FILE_PREFIX + "PSO_gait"
@@ -180,6 +176,7 @@ def scoreGaitPerformance(player):
    if heuristic > player.bestGaitScore:
       player.brain.speech.enable()
       player.brain.speech.say("Found new best gait!")
+      player.brain.speech.disable() # Nathan hates talking robots
 
    pso.getCurrentParticle().setHeuristic(heuristic)
    pso.tickCurrentParticle()
