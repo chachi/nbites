@@ -82,12 +82,12 @@ void ZmpEKF::incorporateMeasurement(const ZmpMeasurement& z,
                                     MeasurementMatrix &R_k,
                                     MeasurementVector &V_k)
 {
-    static const float com_height  = 310; //TODO: Move this
-	float zheight_div_G = com_height/GRAVITY_mss;
+    const float zheight_div_G = z.comZ/GRAVITY_mss;
     static MeasurementVector last_measurement(
         ublas::scalar_vector<float>(zmp_num_measurements, 0.0f));
 
     MeasurementVector z_x(zmp_num_measurements);
+    // addition here b/c G is negative in our constants
     z_x(0) = z.comX + zheight_div_G * z.accX;
     z_x(1) = z.comY + zheight_div_G * z.accY;
 

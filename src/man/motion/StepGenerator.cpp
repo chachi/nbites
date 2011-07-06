@@ -30,6 +30,7 @@ using boost::shared_ptr;
 #include "StepGenerator.h"
 #include "NBMath.h"
 #include "Observer.h"
+#include "PreviewController.h"
 #include "BasicWorldConstants.h"
 #include "COMKinematics.h"
 #include "JointMassConstants.h"
@@ -178,14 +179,13 @@ zmp_xy_tuple StepGenerator::generate_zmp_ref() {
 
 /**
  * This method calculates the sensor ZMP. We build a body to world
- * transform using Aldebaran's filtered angleX/angleY. We then use
- * this to rotate the EKF-filtered accX/Y/Z from the
- * accelerometers. The transformed values are fed into an exponential
- * filter (acc_filter, to reduce jitter from the rotation), and the
- * filtered values are used in an EKF that maintains our sensor ZMP
- * (zmp_filter). The ZMP EKF also takes in the CoM as calculated by
- * the joint angles of the robot (see JointMassConstants.h and
- * COKKinematics.cpp for implementation details of that)
+ * transform using an EKF-filtered angleX/angleY from gyros and pose
+ * data. We then use this to rotate the EKF-filtered accX/Y/Z from the
+ * accelerometers. The transformed values are used in an EKF that
+ * maintains our sensor ZMP (zmp_filter). The ZMP EKF also takes in
+ * the CoM as calculated by the joint angles of the robot (see
+ * JointMassConstants.h and COKKinematics.cpp for implementation
+ * details of that)
  */
 void StepGenerator::findSensorZMP(){
     const Inertial inertial = sensors->getInertial();
@@ -194,9 +194,10 @@ void StepGenerator::findSensorZMP(){
     //so, since walking is conducted from a bird's eye perspective
     //we would like to rotate the sensor measurements appropriately.
     //We will use angleX, and angleY:
+    /// @see NaoPose::transform() for another example
     const ufmatrix4 bodyToWorldTransform =
-        prod(CoordFrame4D::rotation4D(CoordFrame4D::X_AXIS, -inertial.angleX),
-             CoordFrame4D::rotation4D(CoordFrame4D::Y_AXIS, -inertial.angleY));
+	CoordFrame4D::get6DTransform(0.0f, 0.0f, 0.0f,
+				     -inertial.angleX, -inertial.angleY, 0.0f);
 
     // update the IIR filter
     acc_filter.update(inertial.accX,
@@ -207,7 +208,8 @@ void StepGenerator::findSensorZMP(){
                                                             acc_filter.getY(),
                                                             acc_filter.getZ());
 
-    // and rotate the filtered acceleration
+
+    // and rotate the acceleration to the world frame
     accInWorldFrame = prod(bodyToWorldTransform,
                            accInBodyFrame);
 
@@ -240,7 +242,9 @@ void StepGenerator::findSensorZMP(){
     ZmpTimeUpdate tUp = {controller_x->getZMP(), controller_y->getZMP()};
     ZmpMeasurement pMeasure =
 	{controller_x->getPosition(), controller_y->getPosition(),
+	 pose->getBodyCenterHeight(),
 	 accel_i(0), accel_i(1)};
+
     zmp_filter.update(tUp,pMeasure);
 
 #ifdef DEBUG_COM_TRANSFORMS
@@ -260,7 +264,7 @@ float StepGenerator::scaleSensors(const float sensorZMP,
 
     // If our motion sensors are broken, we don't want to use the observer
     if (brokenSensorWarning || sensors->angleXYBroken()) {
-	sensorWeight = 0.0f;
+	//sensorWeight = 0.0f;
 
 	// TODO: signal Python, so the robot can fall back to a slower gait
 
@@ -1361,7 +1365,6 @@ void StepGenerator::debugLogging(){
             leftLeg.getSupportMode());
     ttime += MOTION_FRAME_LENGTH_S;
 #endif
-
 
 #ifdef DEBUG_SENSOR_ZMP
     const float preX = zmp_ref_x.front();

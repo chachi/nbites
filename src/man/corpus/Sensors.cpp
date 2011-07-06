@@ -497,6 +497,12 @@ void Sensors::setInertial(const float accX, const float accY, const float accZ,
 
     inertial = Inertial(accX, accY, accZ, gyrX, gyrY, angleX, angleY);
 
+    // maybe should reset the angleX/Y EKF? but this function is never used
+    angleEKF.update(inertial.angleX, inertial.angleY);
+
+    inertial.angleX = angleEKF.getAngleX();
+    inertial.angleY = angleEKF.getAngleY();
+
     inertial_mutex.unlock();;
 }
 
@@ -504,6 +510,12 @@ void Sensors::setInertial(const Inertial &v) {
     inertial_mutex.lock();
 
     inertial = v;
+
+    // maybe should reset the angleX/Y EKF? but this function is never used
+    angleEKF.update(inertial.angleX, inertial.angleY);
+
+    inertial.angleX = angleEKF.getAngleX();
+    inertial.angleY = angleEKF.getAngleY();
 
     inertial_mutex.unlock();;
 }
@@ -563,6 +575,12 @@ void Sensors::setMotionSensors(const FSR &_leftFoot, const FSR &_rightFoot,
     inertial = _inertial;
     unfilteredInertial = _unfilteredInertial;
 
+    // update the torso angle X/Y kalman filter
+    angleEKF.update(inertial.angleX, inertial.angleY);
+
+    inertial.angleX = angleEKF.getAngleX();
+    inertial.angleY = angleEKF.getAngleY();
+
     updateMotionDataVariance();
 
     motion_sensors_mutex.unlock();
@@ -589,7 +607,25 @@ void Sensors::setVisionSensors(const FootBumper &_leftBumper,
     updateVisionDataVariance();
 
     vision_sensors_mutex.unlock();
+
     this->notifySubscribers(NEW_VISION_SENSORS);
+}
+
+void Sensors::setTorsoAnglesFromPose(const float _angleX, const float _angleY) {
+    motion_sensors_mutex.lock();
+
+    // add to the filter
+    angleEKF.update(_angleX, _angleY);
+
+    //cout << "inertials updated from " <<inertial.angleX << "/" <<inertial.angleY;
+
+    // and update our stored inertial
+    inertial.angleX = angleEKF.getAngleX();
+    inertial.angleY = angleEKF.getAngleY();
+
+    //cout << " to " <<inertial.angleX << "/" <<inertial.angleY << endl;
+
+    motion_sensors_mutex.unlock();
 }
 
 void Sensors::lockImage() const {
