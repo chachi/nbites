@@ -5,7 +5,7 @@ USE_DRIBBLE = False
 
 # Transitions' Constants
 # Ball on and off frame thresholds
-BALL_ON_THRESH = 2
+BALL_ON_THRESH = 4 # EKF resets after 3 frames
 BALL_OFF_THRESH = 30
 BALL_OFF_KICK_THRESH = 80
 

@@ -30,12 +30,11 @@ def ballInPosition(player):
         (x_offset, y_offset, heading) = kick.getPosition()
 
     #Get the difference
-    # not absolute value for x, if ball is closer kick anyway
+    # not absolute value for x, if ball is closer (not behind) kick anyway
     diff_x = ball.relX - x_offset
-
     diff_y = fabs(ball.relY - y_offset)
 
-    if diff_x < constants.BALL_X_OFFSET:
+    if diff_x < constants.BALL_X_OFFSET and diff_x > 0:
         print "Ball X OK at {0}".format(diff_x)
     if diff_y < constants.BALL_Y_OFFSET:
         print "Ball Y OK at {0}".format(diff_y)
@@ -43,6 +42,7 @@ def ballInPosition(player):
     #Compare the sweet spot with the actual values and make sure they
     #are within the threshold
     return (diff_x < constants.BALL_X_OFFSET and
+            diff_x > 0 and
             diff_y < constants.BALL_Y_OFFSET)
 
 def ballNearPosition(player):
