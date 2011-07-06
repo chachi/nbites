@@ -78,6 +78,7 @@
 #include <cstdio>
 #include <math.h>
 #include <list>
+#include <queue>
 
 #include <boost/tuple/tuple.hpp>
 #include <boost/shared_ptr.hpp>

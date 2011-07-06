@@ -19,6 +19,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include "WalkingLeg.h"
+#include "COMKinematics.h"
 
 using namespace std;
 
@@ -26,6 +27,7 @@ using namespace Kinematics;
 using namespace NBMath;
 
 //#define DEBUG_WALKINGLEG
+#define USE_COM_CONTROL
 
 WalkingLeg::WalkingLeg(boost::shared_ptr<Sensors> s,
                        const MetaGait * _gait,
@@ -238,8 +240,13 @@ LegJointStiffTuple WalkingLeg::supporting(ufmatrix3 fc_Transform){//float dest_x
 const vector<float> WalkingLeg::finalizeJoints(const ufvector3& footGoal){
     const float startStopSensorScale = getEndStepSensorScale();
 
+#ifdef USE_COM_CONTROL
     const float COM_SCALE = startStopSensorScale;
+    const ufvector4 com_c = Kinematics::getCOMc(sensors->getMotionBodyAngles());
+#else
+	const float COM_SCALE = startStopSensorScale;
     const ufvector4 com_c = CoordFrame4D::vector4D(0,0,0);
+#endif
 
     //HACK -- the startStopSensor gives us a nice in/out scaling from motion
     //we should really rename that function

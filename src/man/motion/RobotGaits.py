@@ -15,6 +15,7 @@ from .gaits.BackwardsGait import BACKWARDS_GAIT
 from .gaits.ZmpGait import ZMP_GAIT
 from .gaits.ZmpSlow import ZMP_SLOW_GAIT
 from .gaits.PSO_gait4958 import gait_4958 as PSO_GAIT
+from .gaits.LastGait import LAST_GAIT
 
 # disabled / unused gaits
 #from .gaits.ComGait import COM_GAIT
@@ -25,9 +26,9 @@ from .gaits.PSO_gait4958 import gait_4958 as PSO_GAIT
 
 CUR_GAIT = PSO_GAIT
 CUR_DRIBBLE_GAIT = DUCK_GAIT
-CUR_BACKWARDS_GAIT = PSO_GAIT
-CUR_SLOW_GAIT = PSO_GAIT
-CUR_SPIN_GAIT = PSO_GAIT
+CUR_BACKWARDS_GAIT = CUR_GAIT
+CUR_SLOW_GAIT = CUR_GAIT
+CUR_SPIN_GAIT = CUR_GAIT
 
 TRILLIAN_GAIT = CUR_GAIT
 ZAPHOD_GAIT   = CUR_GAIT

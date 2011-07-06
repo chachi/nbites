@@ -206,6 +206,7 @@ void StepGenerator::findSensorZMP(){
     const ufvector4 accInBodyFrame = CoordFrame4D::vector4D(acc_filter.getX(),
                                                             acc_filter.getY(),
                                                             acc_filter.getZ());
+
     // and rotate the filtered acceleration
     accInWorldFrame = prod(bodyToWorldTransform,
                            accInBodyFrame);
@@ -224,17 +225,20 @@ void StepGenerator::findSensorZMP(){
     const ufvector3 accel_i = prod(CoordFrame3D::rotation3D(CoordFrame3D::Z_AXIS,
                                                             tot_angle),
                                    accel_c);
-    // translate com_c (from joint angles) to I frame
-    const ufvector4 com_c_xyz = getCOMc(sensors->getMotionBodyAngles());
-    const ufvector3 joints_com_c = CoordFrame3D::vector3D(com_c_xyz(0), com_c_xyz(1));
-    const ufvector3 joints_com_f = prod(cf_Transform, joints_com_c);
-    joints_com_i = prod(fi_Transform, joints_com_f);
-    const float joint_com_i_x = joints_com_i(0);
-    const float joint_com_i_y = joints_com_i(1);
+
+// DISABLED: this seems to be pointless since the differences in CoM_c get swallowed
+// up by the differences in the transform from C to I. Will be useful again once
+// the Observer doesn't need the I frame.
+//     // translate com_c (from joint angles) to I frame
+//     const ufvector4 com_c_xyz = getCOMc(sensors->getMotionBodyAngles());
+//     const ufvector3 joints_com_c = CoordFrame3D::vector3D(com_c_xyz(0), com_c_xyz(1));
+//     const ufvector3 joints_com_f = prod(cf_Transform, joints_com_c);
+//     joints_com_i = prod(fi_Transform, joints_com_f);
+//     const float joint_com_i_x = joints_com_i(0);
+//    const float joint_com_i_y = joints_com_i(1);
 
     ZmpTimeUpdate tUp = {controller_x->getZMP(), controller_y->getZMP()};
     ZmpMeasurement pMeasure =
-    //{joint_com_i_x, (joint_com_i_y + COM_I_Y_OFFSET),
 	{controller_x->getPosition(), controller_y->getPosition(),
 	 accel_i(0), accel_i(1)};
     zmp_filter.update(tUp,pMeasure);
@@ -252,7 +256,7 @@ void StepGenerator::findSensorZMP(){
 float StepGenerator::scaleSensors(const float sensorZMP,
                                   const float perfectZMP) {
     // TODO: find a better value for this!
-    float sensorWeight = 0.4f; //gait->sensor[WP::OBSERVER_SCALE];
+    float sensorWeight = 0.3f; //gait->sensor[WP::OBSERVER_SCALE];
 
     // If our motion sensors are broken, we don't want to use the observer
     if (brokenSensorWarning || sensors->angleXYBroken()) {
