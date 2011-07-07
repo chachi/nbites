@@ -53,26 +53,3 @@ void VisualRobot::updateRobot(Blob b)
     setDistance(1);
 }
 
-/**
- * Calculate and set the standard deviation for the distance measurement.
- * Set the distance measurement.
- *
- * @param _distance the distance estimate to be set
- */
-void VisualRobot::setDistanceWithSD(float _distance)
-{
-    setDistance(_distance);
-    setDistanceSD(robotDistanceToSD(_distance));
-}
-
-/**
- * Calculate and set the standard deviation for the bearing measurement.
- * Set the bearing measurement.
- *
- * @param _bearing the distance estimate to be set
- */
-void VisualRobot::setBearingWithSD(float _bearing)
-{
-    setBearing(_bearing);
-    setBearingSD(robotBearingToSD(_bearing));
-}

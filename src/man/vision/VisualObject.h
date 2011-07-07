@@ -7,6 +7,11 @@
 class VisualObject : public VisualLandmark, public VisualDetection
 {
 public:
+    VisualObject(int _id,
+                 const estimate _est,
+                 int _x, int _y) : VisualLandmark(_id),
+                                   VisualDetection(_est, _x, _y) { }
+
     VisualObject(int _id) : VisualLandmark(_id),
                                VisualDetection() { }
     VisualObject(int _id, int _x, int _y,

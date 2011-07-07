@@ -198,8 +198,8 @@ void BallEKF::resetModelTo(const RangeBearingMeasurement& ball)
         xhat_k(acc_y_index) = xhat_k(acc_y_index) = 0.0f;
 
         // Set the initial values
-        P_k(x_index,x_index) = ball.distanceSD * ball.distanceSD;
-        P_k(y_index,y_index) = ball.distanceSD * ball.distanceSD;
+        P_k(x_index,x_index) = ball.distanceVariance;
+        P_k(y_index,y_index) = ball.distanceVariance;
         P_k(vel_x_index,vel_x_index) = INIT_X_VEL_UNCERT;
         P_k(vel_y_index,vel_y_index) = INIT_Y_VEL_UNCERT;
         P_k(acc_x_index,acc_x_index) = INIT_X_ACC_UNCERT;
@@ -446,15 +446,13 @@ void BallEKF::incorporateMeasurement(const RangeBearingMeasurement& z,
     // Calculate invariance
     V_k = z_x - xhat_k_bar;
 
-    const float sd_dist_sq = z.distanceSD * z.distanceSD;
-
     // Update the measurement covariance matrix
-    R_k(x_index,x_index)         = sd_dist_sq;
-    R_k(y_index,y_index)         = sd_dist_sq;
-    R_k(vel_x_index,vel_x_index) = sd_dist_sq * 2 / (dt*dt);
-    R_k(vel_y_index,vel_y_index) = sd_dist_sq * 2 / (dt*dt);
-    R_k(acc_x_index,acc_x_index) = sd_dist_sq * 2 / (dt*dt);
-    R_k(acc_y_index,acc_y_index) = sd_dist_sq * 2 / (dt*dt);
+    R_k(x_index,x_index)         = z.distanceVariance;
+    R_k(y_index,y_index)         = z.distanceVariance;
+    R_k(vel_x_index,vel_x_index) = z.distanceVariance * 2 / (dt*dt);
+    R_k(vel_y_index,vel_y_index) = z.distanceVariance * 2 / (dt*dt);
+    R_k(acc_x_index,acc_x_index) = z.distanceVariance * 2 / (dt*dt);
+    R_k(acc_y_index,acc_y_index) = z.distanceVariance * 2 / (dt*dt);
 
     // Calculate the standard error of the measurement
     const StateMeasurementMatrix newP = prod(P_k, trans(H_k));

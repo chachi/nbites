@@ -52,8 +52,6 @@ public:
     void setLeftBottomY(int _y){ leftBottom.y = _y; }
     void setRightBottomX(int _x){ rightBottom.x = _x; }
     void setRightBottomY(int _y){ rightBottom.y = _y; }
-    void setDistanceWithSD(float _distance);
-    void setBearingWithSD(float _bearing);
     void updateCross(Blob *b);
     void setPossibleCrosses(const std::list <const ConcreteCross *> *
                             _possibleCrosses) {

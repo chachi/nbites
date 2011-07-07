@@ -16,12 +16,11 @@ naoLocation(IMAGE_WIDTH/2, IMAGE_HEIGHT - 1);
 const float VisualCorner::MIN_EXTEND_DIST = 12.0f;
 
 VisualCorner::VisualCorner(const int _x, const int _y,
-                           const float _distance,
-                           const float _bearing,
+                           const estimate& _estimate,
                            shared_ptr<VisualLine> l1, shared_ptr<VisualLine> l2,
                            const float _t1, const float _t2,
                            shared_ptr<NaoPose> _pose)
-    : VisualObject(CORNER_NO_IDEA_ID,_x, _y, _distance, _bearing),
+    : VisualObject(CORNER_NO_IDEA_ID, _estimate, _x, _y),
       pose(_pose),
       possibleCorners(ConcreteCorner::concreteCorners().begin(),
                       ConcreteCorner::concreteCorners().end()),
@@ -38,9 +37,6 @@ VisualCorner::VisualCorner(const int _x, const int _y,
     lines.push_back(line2);
     determineCornerShape();
 
-    // Calculate and set the standard deviation of the measurements
-    setDistanceSD(cornerDistanceToSD(_distance));
-    setBearingSD(cornerBearingToSD(_bearing));
 	setAngleX( static_cast<float>(HALF_IMAGE_WIDTH - _x) /
 			   static_cast<float>(HALF_IMAGE_WIDTH) *
 			   MAX_BEARING_RAD);
@@ -432,30 +428,6 @@ void VisualCorner::IDFromLine(const shared_ptr<VisualLine> line)
             possibles.push_back(*i);
     }
     setPossibleCorners(possibles);
-}
-
-/**
- * Calculate and set the standard deviation for the distance measurement.
- * Set the distance measurement.
- *
- * @param _distance the distance estimate to be set
- */
-void VisualCorner::setDistanceWithSD(float _distance)
-{
-    setDistance(_distance);
-    setDistanceSD(cornerDistanceToSD(_distance));
-}
-
-/**
- * Calculate and set the standard deviation for the bearing measurement.
- * Set the bearing measurement.
- *
- * @param _bearing the bearing estimate to be set
- */
-void VisualCorner::setBearingWithSD(float _bearing)
-{
-    setBearing(_bearing);
-    setBearingSD(cornerBearingToSD(_bearing));
 }
 
 /**

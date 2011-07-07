@@ -2094,11 +2094,11 @@ list< VisualCorner > FieldLines::intersectLines()
 			// distances actually show up as negative numbers (we have a
 			// polynomial function that maxes out at around 110 and then
 			// decreases towards negative infinity)
-			const estimate pixEstimate = pose->pixEstimate(intersection.x,
+			const estimate intersectEstimate = pose->pixEstimate(intersection.x,
 													 intersection.y,
 													 LINE_HEIGHT);
-			const float intersectDist = pixEstimate.dist;
-			const float intersectBearing = pixEstimate.bearing;
+			const float intersectDist = intersectEstimate.dist;
+			const float intersectBearing = intersectEstimate.bearing;
 
 			if (isCornerTooFar(intersectDist, numChecksPassed))
 				continue;
@@ -2173,8 +2173,12 @@ list< VisualCorner > FieldLines::intersectLines()
                               LEGIT_INTERSECTION_POINT_COLOR);
             // assign x, y, dist, bearing, line i, line j, t value for line i,
             // t value for line 2
-            VisualCorner c(intersection.x, intersection.y, intersectDist, intersectBearing,
-                           *i, *j, t_I, t_J, pose);
+            VisualCorner c(intersection.x,
+                           intersection.y,
+                           intersectEstimate,
+                           *i, *j,
+                           t_I, t_J,
+                           pose);
 
             if (!isThereGreenAroundCorner(c, **i, **j)){
                 continue;

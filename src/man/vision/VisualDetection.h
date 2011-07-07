@@ -18,6 +18,7 @@ public:
     // Constructor
     VisualDetection(int _x = 0, int _y = 0 , float _distance = 0.0,
                     float _bearing = 0.0);
+    VisualDetection(const estimate& _est, int _x, int _y);
     // Copy constructor
     VisualDetection(const VisualDetection &);
     // Destructor
@@ -25,6 +26,12 @@ public:
 
     /* SETTERS */
     // Best Guesses
+    void setEstimate(const estimate& _est){
+        setDistance(_est.dist);
+        setBearing(_est.bearing);
+        setBearingVariance(_est.bearing_variance);
+        setDistanceVariance(_est.distance_variance);
+    }
     void setWidth(float w) { width = w; }
     void setHeight(float h) { height = h; }
     void setCenterX(int cx) { centerX = cx; }
@@ -37,10 +44,12 @@ public:
     void setElevation(float e) { elevation = e; }
     void setX(int x1) {x = x1;}
     void setY(int y1) {y = y1;}
-    void setDistanceSD(float _distSD) { distanceSD = _distSD;}
-    void setBearingSD(float _bearingSD) { bearingSD = _bearingSD;}
-    virtual void setDistanceWithSD(float _distance) = 0;
-    virtual void setBearingWithSD(float _bearing) = 0;
+    void setDistanceVariance(float _distVariance) {
+        distanceVariance = _distVariance;
+    }
+    void setBearingVariance(float _bearingVariance) {
+        bearingVariance = _bearingVariance;
+    }
 
     void setOn(bool _on){ on = _on; }
     void setFramesOn(int numOn){ framesOn = numOn; }
@@ -64,8 +73,10 @@ public:
     const float getBearingDeg() const { return bearing*TO_DEG; }
     const float getElevation() const { return elevation; }
     const float getElevationDeg() const { return elevation*TO_DEG; }
-    const float getDistanceSD() const { return distanceSD; }
-    const float getBearingSD() const { return bearingSD; }
+    const float getDistanceVariance() const { return distanceVariance; }
+    const float getBearingVariance() const { return bearingVariance; }
+    const float getDistanceSD() const { return sqrtf(distanceVariance); }
+    const float getBearingSD() const { return sqrtf(bearingVariance); }
 
     const bool isOn() const{ return on; }
     int getFramesOn() { return framesOn; }
@@ -74,22 +85,15 @@ public:
 protected:
     /* Best guessed Ball Variables */
     int x, y;
-    float width;
-    float height;
-    int centerX;
-    int centerY;
-    float angleX;
-    float angleY;
+    float width, height;
+    int centerX, centerY;
+    float angleX, angleY;
     float focDist;
-    float distance;
-    float bearing;
-    float elevation;
+    float distance, bearing, elevation;
     // Standard deviation of measurements
-    float distanceSD;
-    float bearingSD;
+    float distanceVariance, bearingVariance;
     bool on;
     int framesOn, framesOff;
-
 };
 
 #endif // VisualDetection_h_defined

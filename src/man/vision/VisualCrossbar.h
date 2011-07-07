@@ -53,8 +53,6 @@ public:
     void setBackDir(int x1) {backDir = x1;}
     void setLeftOpening(int op) { leftOpening = op; }
     void setRightOpening(int op) { rightOpening = op; }
-    void setDistanceWithSD(float _distance);
-    void setBearingWithSD(float _bearing);
 
     // GETTERS
     const int getLeftTopX() const{ return leftTop.x; }

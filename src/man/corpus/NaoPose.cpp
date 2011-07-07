@@ -436,11 +436,11 @@ const estimate NaoPose::pixEstimate(const int pixelX, const int pixelY,
 }
 
 float NaoPose::getDistanceVariance(float distance) {
-	return static_cast<float>(0.6499*pow(M_E, 0.0248 * distance));
+    return static_cast<float>(0.6499*pow(M_E, 0.0248 * distance));
 }
 
 float NaoPose::getBearingVariance(float distance) {
-	return max<float>(-0.00002f * distance + 0.0115f, 0);
+    return max<float>(-0.00002f * distance + 0.0115f, 0);
 }
 
 /**

@@ -62,8 +62,6 @@ public:
                                  _possibleFieldObjects) {
         possibleFieldObjects = _possibleFieldObjects;
     }
-    void setDistanceWithSD(float _distance);
-    void setBearingWithSD(float _bearing);
     virtual void setIDCertainty(certainty c);
 
 

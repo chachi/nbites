@@ -542,7 +542,7 @@ void Ball::checkForReflections(int h, int w, VisualBall * thisBall,
             setBallInfo(w, w, thisBall, e);
         }
     }
-    thisBall->setDistanceEst(e);
+    thisBall->setEstimate(e);
 }
 
 /* Returns true when the ball is close (3/4 of a meter).
@@ -1119,14 +1119,14 @@ void Ball::setBallInfo(int w, int h, VisualBall *thisBall, estimate e) {
 		thisBall->setFocalDistanceFromRadius();
 		//trust pixest to within 300 cm
 		if (e.dist <= 300) {
-			thisBall->setDistanceEst(e);
+			thisBall->setEstimate(e);
 		}
 		else {
-			thisBall->setDistanceEst(focalDist);
+			thisBall->setEstimate(focalDist);
 		}
 	} else {
 		// use our super swell updated pix estimate to do the distance
-		thisBall->setDistanceEst(e);
+		thisBall->setEstimate(e);
 		if (BALLDISTDEBUG) {
 			thisBall->setFocalDistanceFromRadius();
 		}

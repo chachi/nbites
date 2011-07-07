@@ -226,7 +226,7 @@ public class TOOLVisionLink {
     }
 
     public Estimate pixEstimate(int pixelX, int pixelY, float objectHeight) {
-        double[] estimateResult = new double[5];
+        double[] estimateResult = new double[7]; // Needs to be equal to number of elements in C++ estimate
         if (visionLinkSuccessful) {
             try {
                 cppPixEstimate(pixelX, pixelY, objectHeight, estimateResult);
@@ -241,7 +241,8 @@ public class TOOLVisionLink {
 
         return new Estimate(estimateResult[0], estimateResult[1],
                             estimateResult[2], estimateResult[3],
-                            estimateResult[4]);
+                            estimateResult[4],
+                            estimateResult[5], estimateResult[6]);
     }
 
     //getters for the objects

@@ -399,6 +399,8 @@ JNIEXPORT void JNICALL Java_TOOL_Vision_TOOLVisionLink_cppProcessImage
             estimate_array[2] = est.bearing;
             estimate_array[3] = est.x;
             estimate_array[4] = est.y;
+            estimate_array[5] = est.distance_variance;
+            estimate_array[6] = est.bearing_variance;
 
             env->ReleaseDoubleArrayElements( estimateResult, buf_estimate, 0);
         }

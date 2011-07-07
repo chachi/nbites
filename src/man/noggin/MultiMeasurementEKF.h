@@ -233,10 +233,8 @@ public:
    template<int mSize, typename MeasT,
             typename StateMeasMT, typename MeasMT, typename MeasVT>
    void correctionStep(const MeasT& z_k,
-                       StateMeasMT& H_k,
-                       StateMeasMT& K_k,
-                       MeasMT& R_k,
-                       MeasVT& V_k) {
+                       StateMeasMT& H_k, StateMeasMT& K_k,
+                       MeasMT& R_k, MeasVT& V_k) {
        incorporateMeasurement(z_k, H_k, R_k, V_k);
 
        if (R_k(0,0) == DONT_PROCESS_KEY) {

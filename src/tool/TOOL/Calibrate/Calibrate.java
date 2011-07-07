@@ -1021,8 +1021,12 @@ public class Calibrate implements DataListener, MouseListener,
                     // shift is down
                     System.out.printf(
                                       "pixel (%d,%d) dist: %.2f" +
-                                      " bearing: %.2f\n",
-                                      x, y, est.dist, est.bearing);
+                                      " bearing: %.2f" +
+                                      "\n\tvariance (dist, bearing):" +
+                                      " %.2f, %.2f\n",
+                                      x, y, est.dist, est.bearing,
+                                      est.distance_variance,
+                                      est.bearing_variance);
                 } else{
                     // Undefine the color underneath the cursor if in that mode.
                     if (undefineColor) {

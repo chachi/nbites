@@ -32,23 +32,3 @@ void VisualBall::init() {
 	heat = 0.0f;
     on = false;
 }
-
-void VisualBall::setDistanceEst(estimate ball_est)
-{
-    setBearingWithSD(ball_est.bearing);
-    setElevation(ball_est.elevation);
-    setDistanceWithSD(ball_est.dist);
-}
-
-void VisualBall::setDistanceWithSD(float _dist)
-{
-    distance = _dist;
-    setDistanceSD(ballDistanceToSD(distance));
-}
-
-
-void VisualBall::setBearingWithSD(float _bearing)
-{
-    bearing = _bearing;
-    setBearingSD(ballBearingToSD(_bearing));
-}

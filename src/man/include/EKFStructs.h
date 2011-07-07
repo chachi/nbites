@@ -30,27 +30,30 @@ public:
  */
 struct RangeBearingMeasurement
 {
-    RangeBearingMeasurement(float _dist = 0.0f, float _bearing = 0.0f,
-                            float _distSD = 0.0f, float _bearingSD = 0.0f) :
-        distance(_dist), bearing(_bearing), distanceSD(_distSD),
-        bearingSD(_bearingSD) {}
+    RangeBearingMeasurement(float _dist = 0.0f,
+                            float _bearing = 0.0f,
+                            float _distVariance = 0.0f,
+                            float _bearingVariance = 0.0f) :
+        distance(_dist), bearing(_bearing),
+        distanceVariance(_distVariance),
+        bearingVariance(_bearingVariance) {}
     RangeBearingMeasurement(const RangeBearingMeasurement& other) :
         distance(other.distance), bearing(other.bearing),
-        distanceSD(other.distanceSD), bearingSD(other.bearingSD) {}
+        distanceVariance(other.distanceVariance),
+        bearingVariance(other.bearingVariance) {}
     RangeBearingMeasurement(VisualBall * ball) :
         distance(ball->getDistance()), bearing(ball->getBearing()),
-        distanceSD(ball->getDistanceSD()), bearingSD(ball->getBearingSD()) {}
+        distanceVariance(ball->getDistanceVariance()),
+        bearingVariance(ball->getBearingVariance()) {}
 
     friend std::ostream& operator<< (std::ostream &o,
                                      const RangeBearingMeasurement &m) {
         return o << "(" << m.distance << ", " << m.bearing << ", "
-                 << m.distanceSD << ", " << m.bearingSD << ")";
+                 << m.distanceVariance << ", " << m.bearingVariance << ")";
     }
 
-    float distance;
-    float bearing;
-    float distanceSD;
-    float bearingSD;
+    float distance, bearing;
+    float distanceVariance, bearingVariance;
 };
 
 

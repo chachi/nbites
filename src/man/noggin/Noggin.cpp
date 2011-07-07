@@ -21,7 +21,7 @@
 //#define DEBUG_CROSS_OBSERVATIONS
 //#define DEBUG_BALL_OBSERVATIONS
 //#define DEBUG_TEAMMATE_BALL_OBSERVATIONS
-#define USE_TEAMMATE_BALL_REPORTS
+//#define USE_TEAMMATE_BALL_REPORTS
 #define RUN_LOCALIZATION
 #define USE_LOC_CORNERS
 static const float MAX_CORNER_DISTANCE = 150.0f;
@@ -396,6 +396,11 @@ void Noggin::updateLocalization()
 
         // If it's off for more then the threshold, then try and use mate data
         TeammateBallMeasurement n;
+
+        // THIS IS DISABLED:
+        //    Until Comm is sorted out and stable (and
+        //    preferably not hand-organized structs), we won't use these.
+        //    They are too likely to be misapplied.
 #       ifdef USE_TEAMMATE_BALL_REPORTS
         n = comm->getTeammateBallReport();
         if (!(n.ballX == 0.0 && n.ballY == 0.0) &&

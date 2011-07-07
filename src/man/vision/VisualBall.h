@@ -25,9 +25,6 @@ public:
     // Setters
     void setRadius(float r) { radius = r; }
     void setConfidence(int c) {confidence = c;}
-    void setDistanceEst(estimate ball_est);
-    void setDistanceWithSD(float _dist);
-    void setBearingWithSD(float b);
     void findAngles() {
         setAngleX( static_cast<float>((IMAGE_WIDTH/2 - centerX)) /
                    static_cast<float>(IMAGE_WIDTH/2) *

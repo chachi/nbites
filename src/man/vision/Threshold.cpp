@@ -1109,16 +1109,11 @@ void Threshold::setFieldObjectInfo(VisualFieldObject *objPtr) {
         estimate obj_est = pose->bodyEstimate(objPtr->getCenterX(),
                                               objPtr->getCenterY(),
                                               objPtr->getDistance());
-        objPtr->setDistanceWithSD(obj_est.dist);
-        objPtr->setBearingWithSD(obj_est.bearing);
-        objPtr->setElevation(obj_est.elevation);
+        objPtr->setEstimate(obj_est);
     }
     else {
         objPtr->setFocDist(0.0);
-
-        objPtr->setDistanceWithSD(0.0);
-        objPtr->setBearingWithSD(0.0);
-        objPtr->setElevation(0.0);
+        objPtr->setEstimate(estimate());
     }
 }
 /** Choose the best way to measure goal distance based on our certainty about
@@ -1211,18 +1206,14 @@ void Threshold::setVisualRobotInfo(VisualRobot *objPtr) {
 		estimate obj_est = pose->bodyEstimate(objPtr->getCenterX(),
 											  objPtr->getCenterY(),
 											  pose_est.dist);
-		objPtr->setDistanceWithSD(obj_est.dist);
-		objPtr->setBearingWithSD(obj_est.bearing);
-		objPtr->setElevation(obj_est.elevation);
+		objPtr->setEstimate(obj_est);
 		// now that we have the robot information check if it might kick
 		if (vision->ball->getWidth() > 0) {
 			context->checkForKickDanger(objPtr);
 		}
     } else {
         objPtr->setFocDist(0.0);
-        objPtr->setDistanceWithSD(0.0);
-        objPtr->setBearingWithSD(0.0);
-        objPtr->setElevation(0.0);
+		objPtr->setEstimate(estimate());
     }
 }
 
@@ -1253,13 +1244,9 @@ void Threshold::setVisualCrossInfo(VisualCross *objPtr) {
         obj_est = pose->bodyEstimate(crossX, crossY, obj_est.dist);
         if (obj_est.dist > 1500.0f) { // pose problem which happens rarely
             objPtr->setFocDist(0.0);
-            objPtr->setDistanceWithSD(0.0);
-            objPtr->setBearingWithSD(0.0);
-            objPtr->setElevation(0.0);
+            objPtr->setEstimate(estimate());
         } else {
-            objPtr->setDistanceWithSD(obj_est.dist);
-            objPtr->setBearingWithSD(obj_est.bearing);
-            objPtr->setElevation(obj_est.elevation);
+            objPtr->setEstimate(obj_est);
             // now let's see if we can id this guy
             // at this point we've sorted out all of the goal post info
             // if we see a post see how far it is to the cross
@@ -1315,10 +1302,7 @@ void Threshold::setVisualCrossInfo(VisualCross *objPtr) {
             }
         }
     } else {
-        objPtr->setFocDist(0.0);
-        objPtr->setDistanceWithSD(0.0);
-        objPtr->setBearingWithSD(0.0);
-        objPtr->setElevation(0.0);
+        objPtr->setEstimate(estimate());
     }
 }
 

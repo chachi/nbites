@@ -94,30 +94,6 @@ void VisualCross::setID(crossID _id) {
 
 }
 
-/**
- * Calculate and set the standard deviation for the distance measurement.
- * Set the distance measurement.
- *
- * @param _distance the distance estimate to be set
- */
-void VisualCross::setDistanceWithSD(float _distance)
-{
-    setDistance(_distance);
-    setDistanceSD(robotDistanceToSD(_distance));
-}
-
-/**
- * Calculate and set the standard deviation for the bearing measurement.
- * Set the bearing measurement.
- *
- * @param _bearing the distance estimate to be set
- */
-void VisualCross::setBearingWithSD(float _bearing)
-{
-    setBearing(_bearing);
-    setBearingSD(robotBearingToSD(_bearing));
-}
-
 const bool VisualCross::hasPositiveID()
 {
 	return possibleCrosses->size() == 1;

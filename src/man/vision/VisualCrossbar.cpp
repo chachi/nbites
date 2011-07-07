@@ -23,30 +23,6 @@ void VisualCrossbar::init()
     elevation = 0;
 }
 
-/**
- * Calculate and set the standard deviation for the distance measurement.
- * Set the distance measurement.
- *
- * @param _distance the distance estimate to be set
- */
-void VisualCrossbar::setDistanceWithSD(float _distance)
-{
-    setDistance(_distance);
-    setDistanceSD(crossbarDistanceToSD(_distance));
-}
-
-/**
- * Calculate and set the standard deviation for the bearing measurement.
- * Set the bearing measurement.
- *
- * @param _bearing the distance estimate to be set
- */
-void VisualCrossbar::setBearingWithSD(float _bearing)
-{
-    setBearing(_bearing);
-    setBearingSD(crossbarBearingToSD(_bearing));
-}
-
 /*
  * As we saw with beacons, we tend to work with blobs for convenience.  So at
  * some point we need to transfer their contents over to the field object that

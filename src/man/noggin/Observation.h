@@ -28,7 +28,8 @@
 #define POINT_OBSERVATION_CONSTRUCTOR(VisT, ConcT)                      \
     Observation(const VisT &_object)                                    \
         : visDist(_object.getDistance()), visBearing(_object.getBearing()), \
-          sigma_d(_object.getDistanceSD()), sigma_b(_object.getBearingSD()), \
+          var_d(_object.getDistanceVariance()),                         \
+          var_b(_object.getBearingVariance()),                          \
           id(_object.getID()), possibilities()                          \
     {                                                                   \
         const std::list <const ConcT *> * objList =                     \
@@ -39,8 +40,8 @@
                                      (**i).getFieldY());                \
             possibilities.push_back(objectLandmark);                    \
         }                                                               \
-        if (sigma_b == 0.0 || sigma_d == 0.0){                          \
-            std::cout << "Zero standard deviation IS ZERO for obs: "    \
+        if (var_b == 0.0 || var_d == 0.0){                          \
+            std::cout << "Variance IS ZERO for obs: "    \
                       << *this << std::endl;                            \
         }                                                               \
     }
@@ -65,7 +66,7 @@ public:
     // arguments for their landmarks (rather than the two for points)
     Observation(const VisualCorner &_object)
     : visDist(_object.getDistance()), visBearing(_object.getBearing()),
-        sigma_d(_object.getDistanceSD()), sigma_b(_object.getBearingSD()),
+        var_d(_object.getDistanceVariance()), var_b(_object.getBearingVariance()),
         id(_object.getID()), possibilities()
         {
             const std::list <const ConcreteCorner *> * objList =
@@ -89,8 +90,8 @@ public:
     float getVisDistance()    const { return visDist;                    }
     float getVisBearing()     const { return visBearing;                 }
     float getVisBearingDeg()  const { return TO_DEG * visBearing;        }
-    float getDistanceSD()     const { return sigma_d;                    }
-    float getBearingSD()      const { return sigma_b;                    }
+    float getDistanceVariance()     const { return var_d;                    }
+    float getBearingVariance()      const { return var_b;                    }
     int getID()               const { return id;                         }
     int getNumPossibilities() const { return possibilities.size();       }
     bool isAmbiguous()        const { return  getNumPossibilities() > 1; }
@@ -99,7 +100,7 @@ public:
     }
 
     RangeBearingMeasurement getRangeBearingMeasurement() const {
-        return RangeBearingMeasurement(visDist, visBearing, sigma_d, sigma_b);
+        return RangeBearingMeasurement(visDist, visBearing, var_d, var_b);
     }
 
     /*
@@ -107,24 +108,24 @@ public:
      * Visual information SETTERS
      *
      */
-    void setVisDistance(float _d)  { visDist = _d;    }
-    void setVisBearing(float _b)   { visBearing = _b; }
-    void setDistanceSD(float _sdD) { sigma_d = _sdD;  }
-    void setBearingSD(float _sdB)  { sigma_b = _sdB;  }
-    void setID(int _id)            { id = _id;        }
+    void setVisDistance(float _d)        { visDist = _d;    }
+    void setVisBearing(float _b)         { visBearing = _b; }
+    void setDistanceVariance(float _varD){ var_d = _varD;   }
+    void setBearingVariance(float _varB) { var_b = _varB;   }
+    void setID(int _id)                  { id = _id;        }
 
     /*
      * Helper functions
      */
     friend std::ostream& operator<< (std::ostream &o, const Observation &c) {
         return o << "Obs " << c.id << ": (" << c.visDist << ", " << c.visBearing
-                 << ", " << c.sigma_d << ", " << c.sigma_b << ")";
+                 << ", " << c.var_d << ", " << c.var_b << ")";
     }
 
 protected:
     // Vision information
     float visDist, visBearing;
-    float sigma_d, sigma_b;
+    float var_d, var_b;
 
     // Identity information
     int id;
@@ -145,11 +146,11 @@ public:
     CornerObservation(const VisualCorner& _c) :
         Observation<CornerLandmark>(_c),
         visOrientation(_c.getPhysicalOrientation()),
-        sigma_o(_c.getPhysicalOrientationSD()) {
+        var_o(_c.getPhysicalOrientationVariance()) {
 
-        // Ensure that the sd is not zero (will cause errors later)
-        if (sigma_o == 0.0){
-            std::cout << "Zero standard deviation is ZERO for obs: "
+        // Ensure that the variance is not zero (will cause errors later)
+        if (var_o == 0.0){
+            std::cout << "Zero variance is ZERO for obs: "
                       << *this << std::endl;
         }
     }
@@ -157,19 +158,19 @@ public:
     virtual ~CornerObservation() { }
 
     float getVisOrientation() const { return visOrientation; };
-    float getOrientationSD()  const { return sigma_o;        };
+    float getOrientationVariance()  const { return var_o;        };
 
     friend std::ostream& operator<< (std::ostream &o,
                                      const CornerObservation &c) {
         return o << "Obs " << c.id << ": (" << c.visDist << ", " << c.visBearing
                  << ", " << c.visOrientation << ", "
-                 << c.sigma_d << ", " << c.sigma_b
-                 << ", " << c.sigma_o <<  ")";
+                 << c.var_d << ", " << c.var_b
+                 << ", " << c.var_o <<  ")";
     }
 
 private:
     float visOrientation;
-    float sigma_o;
+    float var_o;
 };
 
 #endif // _Observation_h_DEFINED

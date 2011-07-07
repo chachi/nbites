@@ -30,7 +30,7 @@ public:
     typedef ConcreteCorner ConcreteType;
 
     VisualCorner(const int _x, const int _y,
-                 const float _distance, const float _bearing,
+                 const estimate& _estimate,
                  boost::shared_ptr<VisualLine> l1,
                  boost::shared_ptr<VisualLine> l2,
                  const float _t1, const float _t2,
@@ -80,8 +80,9 @@ public:
 
     float getOrientation() const { return orientation; }
     float getPhysicalOrientation() const { return physicalOrientation; }
-    float getPhysicalOrientationSD() const { return M_PI_FLOAT/20; }
-    //return physicalOrientationSD; }
+    float getPhysicalOrientationVariance() const {
+        return 0.00001f*distance*distance- 0.0022f*distance + 0.1425f;
+    }
 
     point<int> getTStemEndpoint() const;
     bool doesItPointDown();
@@ -105,8 +106,6 @@ public:
     void setSecondaryShape(const shape s);
     void setLine1(boost::shared_ptr<VisualLine> l1) { line1 = l1; }
     void setLine2(boost::shared_ptr<VisualLine> l2) { line2 = l2; }
-    void setDistanceWithSD(float _distance);
-    void setBearingWithSD(float _bearing);
     void setID(cornerID _id) { id = _id; }
     void setTOrientation();
 

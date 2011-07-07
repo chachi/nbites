@@ -178,8 +178,8 @@ struct LineLandmark
 class TeammateBallMeasurement
 {
 public:
-    float ballX;
-    float ballY;
+    float ballX, ballY;
+    float ballUncertX, ballUncertY;
     TeammateBallMeasurement(float _x = 0.0f, float _y = 0.0f) :
         ballX(_x), ballY(_y) {}
 };

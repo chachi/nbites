@@ -15,8 +15,6 @@ class VisualRobot;
 #include "VisionHelpers.h"
 #include "Blob.h"
 
-// Values for the Standard Deviation calculations
-
 // This class should eventually inheret from VisualLandmark, once it is
 // cleaned a bit
 class VisualRobot : public VisualDetection {
@@ -52,8 +50,6 @@ public:
     void setLeftBottomY(int _y){ leftBottom.y = _y; }
     void setRightBottomX(int _x){ rightBottom.x = _x; }
     void setRightBottomY(int _y){ rightBottom.y = _y; }
-    void setDistanceWithSD(float _distance);
-    void setBearingWithSD(float _bearing);
     void updateRobot(Blob b);
 
     // GETTERS

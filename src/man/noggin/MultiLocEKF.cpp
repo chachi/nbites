@@ -134,11 +134,11 @@ const float MultiLocEKF::STANDARD_ERROR_THRESH = 6.0f;
                                                                         \
         /* Update the measurement covariance matrix */                  \
         /* Indices: (Dist, bearing) */                                  \
-        R_k(0,0) = z.getDistanceSD() * z.getDistanceSD();               \
+        R_k(0,0) = z.getDistanceVariance();                             \
         R_k(0,1) = 0.0f;                                                \
                                                                         \
         R_k(1,0) = 0.0f;                                                \
-        R_k(1,1) = z.getBearingSD() * z.getBearingSD();                 \
+        R_k(1,1) = z.getBearingVariance();                              \
     }
 
 // Print the vectors and matrices used in the correction steps
@@ -497,26 +497,16 @@ void MultiLocEKF::incorporateCartesianMeasurement(int obsIndex,
     H_k(1,2) = -(x_b - x) * cosh - (y_b - y) * sinh;
 
     // Update the measurement covariance matrix
-    const float dist_sd_2 = pow(z.getDistanceSD(), 2);
-    const float v = dist_sd_2 * sin(z.getVisBearing()) * cos(z.getVisBearing());
+    const float cs = cos(z.getVisBearing());
+    const float sn = sin(z.getVisBearing());
+    const float v = z.getDistanceVariance() * sn * cs;
 
-    R_k(0,0) = dist_sd_2 * pow(cos(z.getVisBearing()), 2);
+    R_k(0,0) = z.getDistanceVariance() * cs * cs;
     R_k(0,1) = v;
     R_k(1,0) = v;
-    R_k(1,1) = dist_sd_2 * pow(sin(z.getVisBearing()), 2);
-
-    const double uncertX = getXUncert();
-    const double uncertY = getYUncert();
-    const double uncertH = getHUncert();
-
-    const double sinhUncert = uncertH * cosh;
-    const double coshUncert = uncertH * sinh;
-
-    const float xInvariance = abs(x_b -x);
-    const float yInvariance = abs(y_b -y);
+    R_k(1,1) = z.getDistanceVariance() * sn * sn;
 
     PRINT_LOC_EKF_INPUTS();
-
 }
 
 /**
@@ -596,7 +586,7 @@ void MultiLocEKF::incorporateCorner(int index,
 
     R_k(2,0) = 0.0f;
     R_k(2,1) = 0.0f;
-    R_k(2,2) = z.getOrientationSD() * z.getOrientationSD();
+    R_k(2,2) = z.getOrientationVariance();
 
     PRINT_LOC_EKF_INPUTS();
 }
@@ -614,9 +604,9 @@ float MultiLocEKF::getDivergence(const PointObservation& z,
 {
     CALCULATE_PT_OBS_ERRORS(z,pt);
 
-    // Normalized errors
-    float dist_error_norm    = dist_error    / z.getDistanceSD();
-    float bearing_error_norm = bearing_error / z.getBearingSD();
+    // Normalized errors (with standard deviation)
+    float dist_error_norm    = dist_error    / sqrtf(z.getDistanceVariance());
+    float bearing_error_norm = bearing_error / sqrtf(z.getBearingVariance());
 
 #ifdef DEBUG_DIVERGENCE_CALCULATIONS
     cout << "Normalized distance error: " << dist_error_norm << endl;
@@ -638,9 +628,12 @@ float MultiLocEKF::getDivergence(const CornerObservation& z,
     CALCULATE_CORNER_OBS_ERRORS(z, pt);
 
     // Normalized errors
-    float dist_error_norm        = dist_error        / z.getDistanceSD();
-    float bearing_error_norm     = bearing_error     / z.getBearingSD();
-    float orientation_error_norm = orientation_error / z.getOrientationSD();
+    float dist_error_norm        = dist_error        /
+        sqrtf(z.getDistanceVariance());
+    float bearing_error_norm     = bearing_error     /
+        sqrtf(z.getBearingVariance());
+    float orientation_error_norm = orientation_error /
+        sqrtf(z.getOrientationVariance());
 
 #ifdef DEBUG_DIVERGENCE_CALCULATIONS
     cout << "Normalized distance error: " << dist_error_norm << endl;
@@ -919,17 +912,17 @@ void MultiLocEKF::resetLoc(const PointObservation* obs1,
     xhat_k_bar(y_index) = newY;
     xhat_k_bar(h_index) = newH;
 
-    P_k_bar(0,0) = obs1->getDistanceSD() * obs1->getDistanceSD();
+    P_k_bar(0,0) = obs1->getDistanceVariance();
     P_k_bar(0,1) = 0.0f;
     P_k_bar(0,2) = 0.0f;
 
     P_k_bar(1,0) = 0.0f;
-    P_k_bar(1,1) = obs1->getDistanceSD() * obs1->getDistanceSD();
+    P_k_bar(1,1) = obs1->getDistanceVariance();
     P_k_bar(1,2) = 0.0f;
 
     P_k_bar(2,0) = 0.0f;
     P_k_bar(2,1) = 0.0f;
-    P_k_bar(2,2) = obs1->getBearingSD() * obs1->getBearingSD();
+    P_k_bar(2,2) = obs1->getBearingVariance();
 }
 
 void MultiLocEKF::resetLoc(const CornerObservation* c)
@@ -949,9 +942,9 @@ void MultiLocEKF::resetLoc(const CornerObservation* c)
                                              - c->getVisBearing());
 
 
-    float distVariance = c->getDistanceSD() * c->getDistanceSD();
-    float bearingVariance = c->getBearingSD() * c->getBearingSD();
-    float orientationVariance = c->getOrientationSD() * c->getOrientationSD();
+    float distVariance = c->getDistanceVariance();
+    float bearingVariance = c->getBearingVariance();
+    float orientationVariance = c->getOrientationVariance();
 
     P_k_bar(0,0) = distVariance * 2;
     P_k_bar(0,1) = 0.0f;
