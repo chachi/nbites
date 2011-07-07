@@ -63,12 +63,7 @@ public:
 
     void hardReset();
 
-    void setCommand(const MotionCommand::ptr command)
-        {
-            pthread_mutex_lock(&walk_provider_mutex);
-            setCommand(boost::dynamic_pointer_cast<WalkCommand>(command));
-            pthread_mutex_unlock(&walk_provider_mutex);
-        }
+    void setCommand(const MotionCommand::ptr command); // becomes WalkCommand
     void setCommand(const WalkCommand::ptr command);
     void setCommand(const Gait::ptr command);
     void setCommand(const StepCommand::ptr command);
@@ -83,6 +78,7 @@ public:
 
 private:
     virtual void setActive();
+    std::vector<float> updateOdometryFromMotion();
 
     boost::shared_ptr<Sensors> sensors;
     boost::shared_ptr<NaoPose> pose;
