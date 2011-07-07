@@ -94,8 +94,8 @@ void WalkProvider::calculateNextJointsAndStiffnesses() {
         stepGenerator.setSpeed(nextCommand->x_mms,
                                nextCommand->y_mms,
                                nextCommand->theta_rads);
-        if (nextDestCommand )
-        nextDestCommand->finishedExecuting();
+        if (nextDestCommand)
+	    nextDestCommand->finishedExecuting();
     }
     pendingCommands = false;
     nextCommand = WalkCommand::ptr();
@@ -134,7 +134,11 @@ void WalkProvider::calculateNextJointsAndStiffnesses() {
 #ifdef DEBUG_ODOMETRY
 	cout << " Ticked DestCommand (" << nextDestCommand->framesRemaining()
 	     << " left) X: " << odometryUpdate[0] << " Y: " << odometryUpdate[1]
-	     << " Theta: " << odometryUpdate[2] << endl;
+	     << " Theta: " << odometryUpdate[2] << " finished? ";
+
+	nextDestCommand->isDoneExecuting() ? cout<< " yes" : cout << " no";
+	cout << endl;
+
 #endif
 	nextDestCommand->tickOdometry(odometryUpdate[0],
 				      odometryUpdate[1],
@@ -288,4 +292,14 @@ std::vector<BodyJointCommand::ptr> WalkProvider::getGaitTransitionCommand()
                                  Kinematics::INTERPOLATION_SMOOTH))  );
     pthread_mutex_unlock(&walk_provider_mutex);
     return commands;
+}
+
+MotionModel WalkProvider::getOdometryUpdate() {
+    if (!calculatedOdoThisFrame) {
+	odometryUpdate = stepGenerator.getOdometryUpdate();
+	calculatedOdoThisFrame = true;
+    }
+    return MotionModel(odometryUpdate[0]*MM_TO_CM,
+		       odometryUpdate[1]*MM_TO_CM,
+		       odometryUpdate[2]);
 }

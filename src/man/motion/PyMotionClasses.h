@@ -192,7 +192,7 @@ public:
 	return getCommand()->remainingX()*MM_TO_CM;
     }
     const float remainingY() const {
-	return getCommand()->remainingX()*MM_TO_CM;
+	return getCommand()->remainingY()*MM_TO_CM;
     }
     const float remainingTheta() const {
 	return getCommand()->remainingTheta()*TO_DEG;

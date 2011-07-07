@@ -55,11 +55,18 @@ public:
     }
 
     // ONLY CALL THESE FROM PROVIDERS (aren't exposed to Python)
-    void finishedExecuting() { commandFinished = true; }
-    void framesRemaining(int _frames) { framesLeft = _frames; }
+    void finishedExecuting() {
+	commandFinished = true;
+    }
+    void framesRemaining(int _frames) {
+	framesLeft = _frames;
+
+	if (framesLeft > 0)
+	    commandFinished = false;
+    }
 
     void tick() {
-        if (--framesLeft < 0)
+	if (--framesLeft < 0)
             commandFinished = true;
     }
 
