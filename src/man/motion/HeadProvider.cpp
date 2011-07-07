@@ -213,11 +213,11 @@ void HeadProvider::setCommand(const CoordHeadCommand::ptr command) {
     yawMaxSpeed = clip(yawMaxSpeed,
                        0,
                        Kinematics::jointsMaxVelNominal
-                       [Kinematics::HEAD_YAW] * 0.4f);
+                       [Kinematics::HEAD_YAW] * 0.2f);
     pitchMaxSpeed = clip(pitchMaxSpeed,
                          0,
                          Kinematics::jointsMaxVelNominal
-                         [Kinematics::HEAD_PITCH] * 0.4f);
+                         [Kinematics::HEAD_PITCH] * 0.2f);
 
     currHeadCommand = command;
 
@@ -256,16 +256,19 @@ void HeadProvider::setActive(){
 
 
 bool HeadProvider::isDone(){
-    const bool setDone = ((yawDest == lastYawDest)
-                          && (pitchDest == lastPitchDest));
-    const bool scriptedDone = (currChoppedCommand->isDone()
-                               && headCommandQueue.empty());
+    bool setDone, scriptedDone;
     switch(curMode){
     case SET:
-        if (setDone) { currHeadCommand->finishedExecuting(); }
+        setDone = ((yawDest == lastYawDest)
+                   && (pitchDest == lastPitchDest));
+        if (setDone && currHeadCommand) {
+            currHeadCommand->finishedExecuting();
+        }
         return setDone;
         break;
     case SCRIPTED:
+        scriptedDone = (currChoppedCommand->isDone()
+                        && headCommandQueue.empty());
         return scriptedDone;
         break;
     default:

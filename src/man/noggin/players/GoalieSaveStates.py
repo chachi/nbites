@@ -6,7 +6,7 @@ import man.motion.SweetMoves as SweetMoves
 import GoalieTransitions as helper
 import GoalieConstants as goalCon
 
-TESTING = True
+TESTING = False
 
 def goalieSave(player):
 
@@ -20,7 +20,7 @@ def goalieSave(player):
 
     if helper.shouldSave(player):
         print "Saving because"
-        print  "Ball.relVelX is" + str(ball.relVelX)
+        print  "Ball.relVelX is" + str(ball.loc.relVelX)
         print  "And Ball.heat is" + str(ball.vis.heat)
         brain.tracker.stopHeadMoves()
         brain.fallController.enableFallProtection(False)

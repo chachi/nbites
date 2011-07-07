@@ -2,6 +2,8 @@ from man.motion import MotionConstants
 from . import TrackingConstants as constants
 from objects import RelLocation
 from .. import NogginConstants
+from ..playbook import PBConstants
+from ..players import GoalieConstants
 
 DEBUG = False
 
@@ -22,7 +24,12 @@ def tracking(tracker):
     if tracker.firstFrame():
         tracker.activeLocOn = False
 
-    if tracker.target.dist > constants.ACTIVE_TRACK_DIST:
+    if tracker.brain.play.isRole(PBConstants.GOALIE):
+        minActiveDist = GoalieConstants.ACTIVE_LOC_THRESH
+    else:
+        minActiveDist = constants.ACTIVE_TRACK_DIST
+
+    if tracker.target.loc.dist > minActiveDist:
         return tracker.goLater('activeTracking')
 
     tracker.helper.trackObject()
@@ -59,7 +66,7 @@ def activeTracking(tracker):
     tracker.helper.trackObject()
 
     # If we are close to the ball and have seen it consistently
-    if tracker.target.dist < constants.STARE_TRACK_DIST:
+    if tracker.target.loc.dist < constants.STARE_TRACK_DIST:
         tracker.shouldStareAtBall += 1
 
         if tracker.shouldStareAtBall > constants.STARE_TRACK_THRESH:
@@ -74,6 +81,8 @@ def activeTracking(tracker):
 
     elif tracker.counter >= constants.BALL_ON_ACTIVE_PAN_THRESH and \
             tracker.target.vis.on:
+        if tracker.brain.play.isRole(PBConstants.GOALIE):
+            return tracker.goLater('trianglePan')
         if tracker.brain.my.locScore == NogginConstants.GOOD_LOC:
             return tracker.goLater('panToFieldObject')
         else:
@@ -97,6 +106,9 @@ def panToFieldObject(tracker):
         # back to tracking
         if closest is None:
             return tracker.goLater('activeTracking')
+
+        if hasattr(closest, "loc"):
+            closest = closest.loc
 
         target = RelLocation(tracker.brain.my, closest.x, closest.y, 0)
         target.height = 45      # stare at the center of the post

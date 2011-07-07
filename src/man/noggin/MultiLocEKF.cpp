@@ -15,9 +15,9 @@ using namespace ekf;
 const float MultiLocEKF::USE_CARTESIAN_DIST = 50.0f;
 // Uncertainty
 const float MultiLocEKF::BETA_LOC = 0.0f;
-const float MultiLocEKF::GAMMA_LOC = 0.1f;
+const float MultiLocEKF::GAMMA_LOC = 0.3f;
 const float MultiLocEKF::BETA_ROT = 0.0f; //M_PI_FLOAT/256.0f;
-const float MultiLocEKF::GAMMA_ROT = 0.1f;
+const float MultiLocEKF::GAMMA_ROT = 0.3f;
 
 // Default initialization values
 const float MultiLocEKF::INIT_LOC_X = CENTER_FIELD_X;
@@ -734,7 +734,8 @@ void MultiLocEKF::clipRobotPose()
     // Check h uncertainty
     xhat_k(2) =
         xhat_k_bar(2) =
-        clip(xhat_k(2), H_EST_MIN, H_EST_MAX);
+        		NBMath::subPIAngle(xhat_k(2));
+    //    clip(xhat_k(2), H_EST_MIN, H_EST_MAX);
 }
 
 void MultiLocEKF::printBeforeUpdateInfo()

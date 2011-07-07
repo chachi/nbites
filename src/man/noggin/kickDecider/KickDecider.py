@@ -2,6 +2,7 @@ import kicks
 import KickInformation
 import KickingConstants as constants
 import noggin_constants as NogginConstants
+from ..playbook import PBConstants
 
 class KickDecider(object):
     """
@@ -40,8 +41,8 @@ class KickDecider(object):
         if kick == kicks.LEFT_DYNAMIC_STRAIGHT_KICK or \
                 kick == kicks.RIGHT_DYNAMIC_STRAIGHT_KICK:
             ball = self.brain.ball
-            dist = ball.distTo(kick.dest)
-            return kick.sweetMove(ball.relY, dist)
+            dist = ball.loc.distTo(kick.dest)
+            return kick.sweetMove(ball.loc.relY, dist)
         else:
             return kick.sweetMove
 
@@ -83,7 +84,7 @@ class KickDecider(object):
         # Check localization to make sure it's good enough.
         if self.brain.my.locScore == NogginConstants.locScore.BAD_LOC:
             print "BAD_LOC!"
-            self.info.kick = kicks.ORBIT_KICK_POSITION
+            self.info.kick = self.info.chooseShortQuickKick()
             return
 
         if self.info.canScoreAll():
@@ -105,6 +106,11 @@ class KickDecider(object):
             self.choosePassBackKick()
 
         self.info.kick = self.chooseKick()
+
+        if self.brain.play.isRole(PBConstants.GOALIE) and \
+                self.info.kick.isBackKick():
+            self.info.kick = kicks.ORBIT_KICK_POSITION
+
         print "I'm at position x: {0} y: {1} h: {2}".format(self.brain.my.x,
                                                             self.brain.my.y,
                                                             self.brain.my.h)
@@ -187,7 +193,7 @@ class KickDecider(object):
 
     def chooseDynamicKick(self):
         ball = self.brain.ball
-        if ball.relY >= 0:
+        if ball.loc.relY >= 0:
             print "LEFT_DYNAMIC_STRAIGHT"
             return kicks.LEFT_DYNAMIC_STRAIGHT_KICK
         print "RIGHT_DYNAMIC_STRAIGHT"
@@ -195,7 +201,7 @@ class KickDecider(object):
 
     def chooseLongBackKick(self):
         ball = self.brain.ball
-        if ball.relY > 0:
+        if ball.loc.relY > 0:
             print "LEFT_LONG_BACK"
             return kicks.LEFT_LONG_BACK_KICK
         print "RIGHT_LONG_BACK"
@@ -203,7 +209,7 @@ class KickDecider(object):
 
     def chooseShortBackKick(self):
         ball = self.brain.ball
-        if ball.relY > 0:
+        if ball.loc.relY > 0:
             print "LEFT_SHORT_BACK"
             return kicks.LEFT_SHORT_BACK_KICK
         print "RIGHT_SHORT_BACK"
@@ -211,7 +217,7 @@ class KickDecider(object):
 
     def chooseShortQuickKick(self):
         ball = self.brain.ball
-        if ball.relY > 0:
+        if ball.loc.relY > 0:
             print "SHORT_QUICK_LEFT"
             return kicks.SHORT_QUICK_LEFT_KICK
         print "SHORT_QUICK_RIGHT"

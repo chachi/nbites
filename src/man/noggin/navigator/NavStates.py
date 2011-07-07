@@ -49,6 +49,9 @@ def goToPosition(nav):
 
     # We don't want to alter the actual destination, we just want a
     # temporary destination for getting the params to walk straight at
+    if hasattr(dest, "loc"):
+        dest = dest.loc
+
     intermediateH = my.headingTo(dest)
     tempDest = RobotLocation(dest.x, dest.y, intermediateH)
 
@@ -317,7 +320,7 @@ def orbitPointThruAngle(nav):
 
     #want x to keep a radius of 17 from the ball, increase and
     #decrease x velocity as we move farther away from that dist
-    walkX = (ball.relX - 18) * .045
+    walkX = (ball.loc.relX - 18) * .045
 
     #keep constant y velocity, let x and theta changea
     walkY = orbitDir * .8
