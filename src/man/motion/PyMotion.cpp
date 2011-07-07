@@ -116,6 +116,9 @@ BOOST_PYTHON_MODULE(_motion)
                               (args("x","y","theta","gain"),
                                "A container for a destination command. Holds an x, y and theta which represent a"
                                " destination relative to the origin of the robot, and a speed (gain)"))
+	.def("remainingX", &PyDestinationCommand::remainingX)
+	.def("remainingY", &PyDestinationCommand::remainingY)
+	.def("remainingTheta", &PyDestinationCommand::remainingTheta)
         ;
 
     class_<PyStepCommand, bases<PyMotionCommand> >("StepCommand",
@@ -141,7 +144,7 @@ BOOST_PYTHON_MODULE(_motion)
         .def("enqueue", enq2)
         .def("setNextWalkCommand", &PyMotionInterface::setNextWalkCommand)
         .def("sendStepCommand", &PyMotionInterface::sendStepCommand)
-    .def("sendDestCommand", &PyMotionInterface::sendDestCommand)
+	.def("sendDestCommand", &PyMotionInterface::sendDestCommand)
         .def("setGait", &PyMotionInterface::setGait)
         .def("setHead", &PyMotionInterface::setHead)
         .def("coordHead", &PyMotionInterface::coordHead)

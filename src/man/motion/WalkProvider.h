@@ -75,9 +75,14 @@ public:
     void setCommand(const DestinationCommand::ptr command);
 
     std::vector<BodyJointCommand::ptr> getGaitTransitionCommand();
-    MotionModel getOdometryUpdate(){
-        const std::vector<float> odo = stepGenerator.getOdometryUpdate();
-        return MotionModel(odo[0]*MM_TO_CM,odo[1]*MM_TO_CM,odo[2]);
+    MotionModel getOdometryUpdate() {
+	if (!calculatedOdoThisFrame) {
+	    odometryUpdate = stepGenerator.getOdometryUpdate();
+	    calculatedOdoThisFrame = true;
+	}
+	return MotionModel(odometryUpdate[0]*MM_TO_CM,
+			   odometryUpdate[1]*MM_TO_CM,
+			   odometryUpdate[2]);
     }
 
     virtual const SupportFoot getSupportFoot() const {
@@ -100,6 +105,11 @@ private:
     bool pendingDestCommands;
     bool pendingGaitCommands;
     bool pendingStartGaitCommands;
+
+    // For caching the odometry update. Noggin doesn't request it every frame,
+    // but Motion does to update any DestinationCommand progress
+    bool calculatedOdoThisFrame;
+    std::vector<float> odometryUpdate;
 
     mutable pthread_mutex_t walk_provider_mutex;
     WalkCommand::ptr nextCommand;

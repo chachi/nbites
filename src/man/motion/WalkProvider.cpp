@@ -29,6 +29,7 @@ using namespace std;
 using namespace Kinematics;
 
 //#define DEBUG_WALKPROVIDER
+//#define DEBUG_ODOMETRY
 
 WalkProvider::WalkProvider(shared_ptr<Sensors> s,
                            shared_ptr<NaoPose> _pose)
@@ -74,6 +75,8 @@ void WalkProvider::calculateNextJointsAndStiffnesses() {
 #ifdef DEBUG_WALKPROVIDER
     cout << "WalkProvider::calculateNextJointsAndStiffnesses()"<<endl;
 #endif
+    calculatedOdoThisFrame = false;
+
     pthread_mutex_lock(&walk_provider_mutex);
     if ( pendingGaitCommands){
         if(stepGenerator.isDone() && pendingStartGaitCommands){
@@ -123,8 +126,20 @@ void WalkProvider::calculateNextJointsAndStiffnesses() {
     }
 
     // advance the in-progress DestinationCommand
-    if (nextDestCommand)
+    if (nextDestCommand) {
         nextDestCommand->tick();
+	/* we don't use MotionModel since it is in CM, but this method will cache the
+	   odometry update in mm locally and we can use that */
+	getOdometryUpdate();
+#ifdef DEBUG_ODOMETRY
+	cout << " Ticked DestCommand (" << nextDestCommand->framesRemaining()
+	     << " left) X: " << odometryUpdate[0] << " Y: " << odometryUpdate[1]
+	     << " Theta: " << odometryUpdate[2] << endl;
+#endif
+	nextDestCommand->tickOdometry(odometryUpdate[0],
+				      odometryUpdate[1],
+				      odometryUpdate[2]);
+    }
 
     //ask the step Generator to update ZMP values, com targets
     stepGenerator.tick_controller();

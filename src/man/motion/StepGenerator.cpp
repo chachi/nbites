@@ -1235,7 +1235,7 @@ vector<float> StepGenerator::getOdometryUpdate(){
     const float rotation = -safe_asin(cc_Transform(1,0));
     const ufvector3 odo = prod(cc_Transform,CoordFrame3D::vector3D(0.0f,0.0f));
     const float odoArray[3] = {odo(0),odo(1),rotation};
-    //printf("Odometry update is (%g,%g,%g)\n",odoArray[0],odoArray[1],odoArray[2]);
+    printf("Odometry update is (%g,%g,%g)\n",odoArray[0],odoArray[1],odoArray[2]);
     cc_Transform = CoordFrame3D::translation3D(0.0f,0.0f);
     return vector<float>(odoArray,&odoArray[3]);
 }
@@ -1262,7 +1262,6 @@ void StepGenerator::updateOdometry(const vector<float> &deltaOdo){
                                                               -deltaOdo[2]));
     const ufmatrix3 new_cc_Transform  = prod(cc_Transform,odoUpdate);
     cc_Transform = new_cc_Transform;
-
 }
 
 /**
