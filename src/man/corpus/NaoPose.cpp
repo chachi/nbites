@@ -520,6 +520,8 @@ estimate NaoPose::getEstimate(ublas::vector<float> objInWorldFrame) {
 
     pix_est.x = objInWorldFrame(X) * MM_TO_CM;
     pix_est.y = objInWorldFrame(Y) * MM_TO_CM;
+    pix_est.distance_variance = getDistanceVariance(pix_est.dist);
+    pix_est.bearing_variance = getBearingVariance(pix_est.bearing);
 
     //need dist in 3D for angular elevation, not birdseye
     float dist3D = getHomLength(objInWorldFrame); //in MM
