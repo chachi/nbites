@@ -17,7 +17,9 @@ VisualCross::VisualCross(const crossID _id) :
 
 
 VisualCross::VisualCross(const VisualCross& o) :
-    VisualObject(o){}
+    VisualObject(o)
+{
+}
 
 // Initialization, happens every frame.
 void VisualCross::init()

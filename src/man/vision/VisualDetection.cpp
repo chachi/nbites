@@ -1,10 +1,13 @@
 // VisualDetection.cpp
 #include "VisualDetection.h"
 
-VisualDetection::VisualDetection(int _x, int _y, float _distance,
-                                 float _bearing) : x(_x), y(_y),
-                                                   distance(_distance),
-                                                   bearing(_bearing)
+VisualDetection::VisualDetection() :
+    x(0), y(0), width(0), height(0),
+    centerX(0), centerY(0), angleX(0),
+    angleY(0), focDist(0), distance(0),
+    bearing(0), elevation(0),
+    distanceVariance(0),
+    bearingVariance(0)
 {
 }
 

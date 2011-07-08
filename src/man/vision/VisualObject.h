@@ -13,11 +13,7 @@ public:
                                    VisualDetection(_est, _x, _y) { }
 
     VisualObject(int _id) : VisualLandmark(_id),
-                               VisualDetection() { }
-    VisualObject(int _id, int _x, int _y,
-                 float _distance, float _bearing) :
-        VisualLandmark(_id),
-        VisualDetection(_x,_y,_distance,_bearing) { }
+                            VisualDetection() { }
 
     VisualObject(const VisualObject& other) :
         VisualLandmark(other), VisualDetection(other) { }

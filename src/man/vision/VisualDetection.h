@@ -16,11 +16,10 @@
 class VisualDetection {
 public:
     // Constructor
-    VisualDetection(int _x = 0, int _y = 0 , float _distance = 0.0,
-                    float _bearing = 0.0);
     VisualDetection(const estimate& _est, int _x, int _y);
     // Copy constructor
     VisualDetection(const VisualDetection &);
+    VisualDetection();
     // Destructor
     virtual ~VisualDetection();
 

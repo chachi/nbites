@@ -20,13 +20,6 @@ VisualFieldObject::VisualFieldObject()
     framesOff = 0;
 }
 
-VisualFieldObject::VisualFieldObject(const int _x, const int _y,
-                                     const float _distance,
-                                     const float _bearing)
-    : VisualObject(UNKNOWN_FIELD_OBJECT,
-                                  _x, _y, _distance, _bearing)
-{
-}
 VisualFieldObject::VisualFieldObject(const VisualFieldObject& other) :
     VisualObject(other)
 {
