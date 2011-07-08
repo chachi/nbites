@@ -10,7 +10,7 @@ from ..objects import RobotLocation
 from math import fabs
 import copy
 
-DEBUG = False
+DEBUG = True
 
 def doingSweetMove(nav):
     '''State that we stay in while doing sweet moves'''
@@ -258,7 +258,7 @@ def destWalking(nav):
     elif -1 != nav.currentCommand.framesRemaining() < 40:
         nav.nearDestination = True
 
-    if nav.counter % 5 is 0:
+    if DEBUG and nav.counter % 3 is 0:
         print "destCommand in progress: {0} frames, {1} X {2} Y remaining"\
               .format(nav.currentCommand.framesRemaining(),
                       nav.currentCommand.remainingX(),
@@ -267,15 +267,12 @@ def destWalking(nav):
     if nav.counter > 1 and \
            (nav.currentCommand.isDone() or
             not nav.brain.motion.isWalkActive()):
-
-        """
         # see why we went to atPosition
-        print "isWalkActive? {0}, commandDone? {1}, counter? {2}"\
-              .format(nav.brain.motion.isWalkActive(),
-                      nav.currentCommand.isDone(),
-                      nav.counter)
-        """
-
+        if DEBUG:
+            print "isWalkActive? {0}, commandDone? {1}, counter? {2}"\
+                  .format(nav.brain.motion.isWalkActive(),
+                          nav.currentCommand.isDone(),
+                          nav.counter)
         nav.nearDestination = True
         return nav.goNow('atPosition')
 
