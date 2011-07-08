@@ -1,9 +1,7 @@
 from math import fabs
 from ..util import FSA
 from . import NavStates
-from . import PlaybookPositionStates
 from . import ChaseStates
-from . import PFKStates
 from . import NavConstants as constants
 from . import NavTransitions as navTrans
 from . import NavHelper as helper
