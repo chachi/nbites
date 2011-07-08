@@ -31,7 +31,7 @@
 #define ABSTRACT_COMMAND_H
 
 #include <boost/shared_ptr.hpp>
-x#include <iostream>
+#include <iostream>
 
 #include "Common.h"
 
