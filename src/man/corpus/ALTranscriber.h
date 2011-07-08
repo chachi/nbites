@@ -31,6 +31,8 @@
 #include "Transcriber.h"
 #include "Sensors.h"
 #include "AccEKF.h"
+#include "BoardError.h"
+
 /**
  *  This class servers to connect our Sensors class with AlMemory.
  *  It has different mechanisims which can be called
@@ -68,6 +70,7 @@ private: //Members
 
     float lastAngleX, lastAngleY;
     float lastReadAngleX, lastReadAngleY;
+
 private: //Helper Methods
 
     //For the motion thread (enactor)
@@ -79,8 +82,8 @@ private: //Helper Methods
     void initSyncVisionWithALMemory();
     void syncVisionWithALMemory();
 
-    static const float calibrate_acc_x(const float x);
-    static const float calibrate_acc_y(const float y);
-    static const float calibrate_acc_z(const float z);
+    const float calibrate_acc_x(const float x);
+    const float calibrate_acc_y(const float y);
+    const float calibrate_acc_z(const float z);
 };
 #endif

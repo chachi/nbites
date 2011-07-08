@@ -297,14 +297,13 @@ void Noggin::runStep ()
 void Noggin::updateLocalization()
 {
     // Self Localization
-    MotionModel odometery = motion_interface->getOdometryUpdate();
+    MotionModel odometry = motion_interface->getOdometryUpdate();
 
     // Build the observations from vision data
     vector<PointObservation> pt_observations;
     vector<CornerObservation> corner_observations;
 
     // FieldObjects
-
     VisualFieldObject fo;
     fo = *vision->bgrp;
 
@@ -372,7 +371,7 @@ void Noggin::updateLocalization()
 
     // Process the information
     PROF_ENTER(P_MCL);
-    loc->updateLocalization(odometery, pt_observations, corner_observations);
+    loc->updateLocalization(odometry, pt_observations, corner_observations);
     PROF_EXIT(P_MCL);
 
     // Ball Tracking
@@ -423,13 +422,13 @@ void Noggin::updateLocalization()
 #       endif
     }
 
-    ballEKF->updateModel(odometery, m, loc->getCurrentEstimate());
+    ballEKF->updateModel(odometry, m, loc->getCurrentEstimate());
 
 #   ifdef LOG_LOCALIZATION
     if (loggingLoc) {
         // Print out odometry and ball readings
-        outputFile << odometery.deltaF << " " << odometery.deltaL << " "
-                   << odometery.deltaR << " " << m.distance
+        outputFile << odometry.deltaF << " " << odometry.deltaL << " "
+                   << odometry.deltaR << " " << m.distance
                    << " " << m.bearing;
         // Print out observation information
         for (unsigned int x = 0; x < observations.size(); ++x) {

@@ -35,12 +35,25 @@ public:
 
     DestinationCommand(float _x_mm, float _y_mm, float _theta_rads, float _gain=1.0f)
 	: MotionCommand (MotionConstants::DESTINATION),
-          x_mm(_x_mm),y_mm(_y_mm),theta_rads(_theta_rads), gain(_gain) {
+          x_mm(_x_mm),y_mm(_y_mm),theta_rads(_theta_rads), gain(_gain),
+	  _remainingX(_x_mm), _remainingY(_y_mm), _remainingTheta(_theta_rads)
+	{
 	setChainList();
     }
 
     virtual ~DestinationCommand() {}
-public:
+
+    // similar to AbstractCommand's tick()
+    void tickOdometry(float dx, float dy, float dtheta) {
+	_remainingX -= dx;
+	_remainingY -= dy;
+	_remainingTheta -= dtheta;
+    }
+
+    const float remainingX() const { return _remainingX; }
+    const float remainingY() const { return _remainingY; }
+    const float remainingTheta() const { return _remainingTheta; }
+
     // DestinationCommand parameters
     const float x_mm;
     const float y_mm;
@@ -61,6 +74,8 @@ public:
                      << ") at: " << w.gain*100 << "%";
         }
 
+private:
+    float _remainingX, _remainingY, _remainingTheta;
 };
 
 #endif

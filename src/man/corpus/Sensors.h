@@ -30,11 +30,13 @@
 #include "SensorDef.h"
 #include "SensorConfigs.h"
 #include "VisionDef.h"
+#include "AngleEKF.h"
 #include "Provider.h"
 #include "Speech.h"
 #include "BulkMonitor.h"
 #include "include/synchro/mutex.h"
 #include "Kinematics.h"
+
 
 enum SupportFoot {
     LEFT_SUPPORT = 0,
@@ -48,6 +50,8 @@ enum SensorsEvent {
     NEW_VISION_SENSORS,
     NEW_IMAGE
 };
+
+class Sensors;
 
 struct FSR {
     FSR()
@@ -174,6 +178,9 @@ public:
                           const float batteryCharge,
                           const float batteryCurrent);
 
+    // used by Pose to update Angle X/Y estimates
+    void setTorsoAnglesFromPose(const float angleX, const float angleY);
+
     // special methods
     //   the image retrieval and locking methods are a little different, as we
     //   don't copy the raw image data.  If locking is needed for some period
@@ -269,6 +276,8 @@ private:
     FootBumper rightFootBumper;
     // Inertial sensors
     Inertial inertial;
+    // filter for gyro/pose integration
+    AngleEKF angleEKF;
     // Sonar sensors
     float ultraSoundDistanceLeft;
     float ultraSoundDistanceRight;

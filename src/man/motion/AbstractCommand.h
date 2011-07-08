@@ -31,7 +31,7 @@
 #define ABSTRACT_COMMAND_H
 
 #include <boost/shared_ptr.hpp>
-#include <iostream>
+x#include <iostream>
 
 #include "Common.h"
 
@@ -49,8 +49,9 @@ public:
     virtual int framesRemaining() { return framesLeft; }
     virtual bool isDoneExecuting() { return commandFinished; }
     virtual float timeRemaining() {
-        if (isDoneExecuting())
+        if (isDoneExecuting()){
             return 0.0f;
+        }
         return static_cast<float>(framesRemaining()) * MOTION_FRAME_RATE;
     }
 
@@ -65,8 +66,9 @@ public:
     }
 
     void tick() {
-        if (--framesLeft < 0)
+        if (--framesLeft < 0){
             commandFinished = true;
+        }
     }
 
 private:

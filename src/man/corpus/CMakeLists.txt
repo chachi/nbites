@@ -70,6 +70,7 @@ SET( SENSORS_SRCS Sensors
   PySensors
   NaoPose
   CameraCalibrate
+  BoardError
   )
 
 
@@ -83,6 +84,7 @@ SET( SYNCHRO_SRCS synchro
 ########### ROBOT CONNECT #########
 SET( ROBOT_CONNECT_SRCS
   AccEKF
+  AngleEKF
   RoboGuardian
   guardian/ConnectionAngel
   guardian/WifiAngel

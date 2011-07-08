@@ -63,22 +63,14 @@ public:
 
     void hardReset();
 
-    void setCommand(const MotionCommand::ptr command)
-        {
-            pthread_mutex_lock(&walk_provider_mutex);
-            setCommand(boost::dynamic_pointer_cast<WalkCommand>(command));
-            pthread_mutex_unlock(&walk_provider_mutex);
-        }
+    void setCommand(const MotionCommand::ptr command); // becomes WalkCommand
     void setCommand(const WalkCommand::ptr command);
     void setCommand(const Gait::ptr command);
     void setCommand(const StepCommand::ptr command);
     void setCommand(const DestinationCommand::ptr command);
 
     std::vector<BodyJointCommand::ptr> getGaitTransitionCommand();
-    MotionModel getOdometryUpdate(){
-        const std::vector<float> odo = stepGenerator.getOdometryUpdate();
-        return MotionModel(odo[0]*MM_TO_CM,odo[1]*MM_TO_CM,odo[2]);
-    }
+    MotionModel getOdometryUpdate();
 
     virtual const SupportFoot getSupportFoot() const {
         return stepGenerator.getSupportFoot();
@@ -86,6 +78,7 @@ public:
 
 private:
     virtual void setActive();
+    std::vector<float> updateOdometryFromMotion();
 
     boost::shared_ptr<Sensors> sensors;
     boost::shared_ptr<NaoPose> pose;
@@ -100,6 +93,11 @@ private:
     bool pendingDestCommands;
     bool pendingGaitCommands;
     bool pendingStartGaitCommands;
+
+    // For caching the odometry update. Noggin doesn't request it every frame,
+    // but Motion does to update any DestinationCommand progress
+    bool calculatedOdoThisFrame;
+    std::vector<float> odometryUpdate;
 
     mutable pthread_mutex_t walk_provider_mutex;
     WalkCommand::ptr nextCommand;

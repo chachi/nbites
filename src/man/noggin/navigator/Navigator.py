@@ -8,7 +8,7 @@ from objects import RobotLocation
 from ..kickDecider import kicks
 from ..util import MyMath
 
-DEBUG_DESTINATION = True
+DEBUG_DESTINATION = False
 
 class Navigator(FSA.FSA):
     def __init__(self,brain):
@@ -187,11 +187,6 @@ class Navigator(FSA.FSA):
         Sets a new destination
         Always does something, since destinations are relative and time sensitive
         """
-        if DEBUG_DESTINATION:
-            print 'Set new destination of ({0}, {1}, {2}, gain={3})' \
-                  .format(self.destX, self.destY, self.destTheta, self.destGain)
-            self.brain.speech.say("New destination")
-
         self.destX = x
         self.destY = y
         self.destTheta = theta
@@ -200,6 +195,11 @@ class Navigator(FSA.FSA):
         self.updateDests(x, y, theta, gain)
 
         self.switchTo('destWalking')
+
+        if DEBUG_DESTINATION:
+            print 'Set new destination of ({0}, {1}, {2}, gain={3})' \
+                  .format(self.destX, self.destY, self.destTheta, self.destGain)
+            self.brain.speech.say("New destination")
 
     # Have we reached our destination?
     def isAtPosition(self):

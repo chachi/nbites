@@ -31,6 +31,7 @@ HOST=eisbaer.local
 SERVER=$username@$HOST
 #ROBOCUP_DIR=/mnt/research/robocup
 ROBOCUP_DIR=/home/nbites/
+
 PSO_DIR=gait-pso/swarms
 PICKLE="PSO_pGaitLearner.pickle"
 

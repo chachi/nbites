@@ -89,6 +89,7 @@ void NaoEnactor::sendCommands(){
 void NaoEnactor::sendJoints()
 {
     PROF_ENTER(P_SEND_JOINTS);
+
     // Get the angles we want to go to this frame from the switchboard
     motionValues = switchboard->getNextJoints();
 

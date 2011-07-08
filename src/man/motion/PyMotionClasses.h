@@ -50,6 +50,7 @@ using boost::dynamic_pointer_cast;
 #include "MotionInterface.h"
 #include "Kinematics.h"
 #include "StepCommand.h"
+#include "Step.h"
 using namespace Kinematics;
 
 static MotionInterface* interface_reference = 0;
@@ -183,6 +184,18 @@ public:
 				   theta_degs*TO_RAD,
 				   gain)
 	    );
+    }
+
+    // using getCommand() so command is cast as DestinationCommand::ptr
+    // odometry is returned in Python-friendly units
+    const float remainingX() const {
+	return getCommand()->remainingX()*MM_TO_CM;
+    }
+    const float remainingY() const {
+	return getCommand()->remainingY()*MM_TO_CM;
+    }
+    const float remainingTheta() const {
+	return getCommand()->remainingTheta()*TO_DEG;
     }
 
     DestinationCommand::ptr getCommand() const {

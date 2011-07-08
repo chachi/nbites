@@ -158,9 +158,10 @@ void ScriptedProvider::setNextBodyCommand() {
 	BodyJointCommand::ptr nextCommand = bodyCommandQueue.front();
 	bodyCommandQueue.pop();
 
-	// Replace the current command
 	PROF_ENTER(P_CHOPPED);
-	const bool useComPreviews = true;
+	// set to true to test out dynamically balanced scripted moves
+	// NOTE: in its current state, this will override the arm joints
+	const bool useComPreviews = false;
 	currCommand = chopper.chopCommand(nextCommand, useComPreviews);
 	PROF_EXIT(P_CHOPPED);
     }

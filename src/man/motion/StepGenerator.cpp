@@ -30,6 +30,7 @@ using boost::shared_ptr;
 #include "StepGenerator.h"
 #include "NBMath.h"
 #include "Observer.h"
+#include "PreviewController.h"
 #include "BasicWorldConstants.h"
 #include "COMKinematics.h"
 #include "JointMassConstants.h"
@@ -66,9 +67,11 @@ StepGenerator::StepGenerator(shared_ptr<Sensors> s,
       fc_Transform(CoordFrame3D::identity3D()),
       cf_Transform(CoordFrame3D::identity3D()),
       cc_Transform(CoordFrame3D::identity3D()),
+      lastRotation(0), avgStepRotation(0), dThetaPerMotionFrame(0),
+      xOdoFilter(Boxcar(1)),
       sensors(s), pose(p), gait(_gait), nextStepIsLeft(true),
-      leftLeg(s,gait,&sensorAngles,LLEG_CHAIN),
-      rightLeg(s,gait,&sensorAngles,RLEG_CHAIN),
+      leftLeg(s,gait,&sensorAngles, LLEG_CHAIN),
+      rightLeg(s,gait,&sensorAngles, RLEG_CHAIN),
       leftArm(gait,LARM_CHAIN), rightArm(gait,RARM_CHAIN),
       supportFoot(LEFT_SUPPORT),
       controller_x(new Observer()),
@@ -178,14 +181,13 @@ zmp_xy_tuple StepGenerator::generate_zmp_ref() {
 
 /**
  * This method calculates the sensor ZMP. We build a body to world
- * transform using Aldebaran's filtered angleX/angleY. We then use
- * this to rotate the EKF-filtered accX/Y/Z from the
- * accelerometers. The transformed values are fed into an exponential
- * filter (acc_filter, to reduce jitter from the rotation), and the
- * filtered values are used in an EKF that maintains our sensor ZMP
- * (zmp_filter). The ZMP EKF also takes in the CoM as calculated by
- * the joint angles of the robot (see JointMassConstants.h and
- * COKKinematics.cpp for implementation details of that)
+ * transform using an EKF-filtered angleX/angleY from gyros and pose
+ * data. We then use this to rotate the EKF-filtered accX/Y/Z from the
+ * accelerometers. The transformed values are used in an EKF that
+ * maintains our sensor ZMP (zmp_filter). The ZMP EKF also takes in
+ * the CoM as calculated by the joint angles of the robot (see
+ * JointMassConstants.h and COKKinematics.cpp for implementation
+ * details of that)
  */
 void StepGenerator::findSensorZMP(){
     const Inertial inertial = sensors->getInertial();
@@ -194,9 +196,10 @@ void StepGenerator::findSensorZMP(){
     //so, since walking is conducted from a bird's eye perspective
     //we would like to rotate the sensor measurements appropriately.
     //We will use angleX, and angleY:
+    /// @see NaoPose::transform() for another example
     const ufmatrix4 bodyToWorldTransform =
-        prod(CoordFrame4D::rotation4D(CoordFrame4D::X_AXIS, -inertial.angleX),
-             CoordFrame4D::rotation4D(CoordFrame4D::Y_AXIS, -inertial.angleY));
+	CoordFrame4D::get6DTransform(0.0f, 0.0f, 0.0f,
+				     -inertial.angleX, -inertial.angleY, 0.0f);
 
     // update the IIR filter
     acc_filter.update(inertial.accX,
@@ -206,7 +209,9 @@ void StepGenerator::findSensorZMP(){
     const ufvector4 accInBodyFrame = CoordFrame4D::vector4D(acc_filter.getX(),
                                                             acc_filter.getY(),
                                                             acc_filter.getZ());
-    // and rotate the filtered acceleration
+
+
+    // and rotate the acceleration to the world frame
     accInWorldFrame = prod(bodyToWorldTransform,
                            accInBodyFrame);
 
@@ -224,19 +229,24 @@ void StepGenerator::findSensorZMP(){
     const ufvector3 accel_i = prod(CoordFrame3D::rotation3D(CoordFrame3D::Z_AXIS,
                                                             tot_angle),
                                    accel_c);
-    // translate com_c (from joint angles) to I frame
-    const ufvector4 com_c_xyz = getCOMc(sensors->getMotionBodyAngles());
-    const ufvector3 joints_com_c = CoordFrame3D::vector3D(com_c_xyz(0), com_c_xyz(1));
-    const ufvector3 joints_com_f = prod(cf_Transform, joints_com_c);
-    joints_com_i = prod(fi_Transform, joints_com_f);
-    const float joint_com_i_x = joints_com_i(0);
-    const float joint_com_i_y = joints_com_i(1);
+
+// DISABLED: this seems to be pointless since the differences in CoM_c get swallowed
+// up by the differences in the transform from C to I. Will be useful again once
+// the Observer doesn't need the I frame.
+//     // translate com_c (from joint angles) to I frame
+//     const ufvector4 com_c_xyz = getCOMc(sensors->getMotionBodyAngles());
+//     const ufvector3 joints_com_c = CoordFrame3D::vector3D(com_c_xyz(0), com_c_xyz(1));
+//     const ufvector3 joints_com_f = prod(cf_Transform, joints_com_c);
+//     joints_com_i = prod(fi_Transform, joints_com_f);
+//     const float joint_com_i_x = joints_com_i(0);
+//    const float joint_com_i_y = joints_com_i(1);
 
     ZmpTimeUpdate tUp = {controller_x->getZMP(), controller_y->getZMP()};
     ZmpMeasurement pMeasure =
-    //{joint_com_i_x, (joint_com_i_y + COM_I_Y_OFFSET),
 	{controller_x->getPosition(), controller_y->getPosition(),
+	 pose->getBodyCenterHeight(),
 	 accel_i(0), accel_i(1)};
+
     zmp_filter.update(tUp,pMeasure);
 
 #ifdef DEBUG_COM_TRANSFORMS
@@ -252,11 +262,11 @@ void StepGenerator::findSensorZMP(){
 float StepGenerator::scaleSensors(const float sensorZMP,
                                   const float perfectZMP) {
     // TODO: find a better value for this!
-    float sensorWeight = 0.4f; //gait->sensor[WP::OBSERVER_SCALE];
+    float sensorWeight = 0.3f; //gait->sensor[WP::OBSERVER_SCALE];
 
     // If our motion sensors are broken, we don't want to use the observer
     if (brokenSensorWarning || sensors->angleXYBroken()) {
-	sensorWeight = 0.0f;
+	//sensorWeight = 0.0f;
 
 	// TODO: signal Python, so the robot can fall back to a slower gait
 
@@ -379,11 +389,7 @@ WalkLegsTuple StepGenerator::tick_legs(){
     LegJointStiffTuple right = rightLeg.tick(rightStep_f,swingingStepSource_f,
 					     swingingStep_f,fc_Transform);
 
-    if(supportStep_f->foot == LEFT_FOOT){
-        updateOdometry(leftLeg.getOdoUpdate());
-    }else{
-        updateOdometry(rightLeg.getOdoUpdate());
-    }
+    updateOdometry();
 
     //HACK check to see if we are done - still too soon, but works! (see graphs)
     if(supportStep_s->type == END_STEP && swingingStep_s->type == END_STEP
@@ -439,6 +445,7 @@ void StepGenerator::swapSupportLegs(){
     //using the stepTransform matrix from above
     ufvector3 swing_src_f = prod(stepTransform,origin);
 
+
     //Third, do the dest. of the swinging leg, which is more complicated
     //We get the translation matrix that takes points in next f-type
     //coordinate frame, namely the one that will be centered at the swinging
@@ -454,6 +461,27 @@ void StepGenerator::swapSupportLegs(){
     //we can simply read this out of the aforementioned translation matr.
     //this only works because its a 3D homog. coord matr - 4D would break
     float swing_dest_angle = -safe_asin(swing_reverse_trans(1,0));
+
+    /* save the rotation of this step, so we can use it to update odometry
+     * this is kind of a HACK but it gives us a dTheta per motion frame
+     * that is proportional to our actual dTheta, and in the correct direction.
+     *
+     * To make it better, look at the odometry methods inside WalkingLeg and use
+     * the matrices there possibly?
+     *
+     * NOTE: The sign of the rotation is switched to get our movement from the
+     * angle, since it comes from the reverse transformation.
+     */
+    const float rotationThisStep = -1*swing_dest_angle;
+    //cout << "step rotation " << rotationThisStep;
+
+    avgStepRotation = (lastRotation + rotationThisStep)*0.5f;
+    lastRotation = rotationThisStep;
+
+    dThetaPerMotionFrame = avgStepRotation /
+	static_cast<float>(lastQueuedStep->stepDurationFrames);
+
+    //cout << " rotation per motion frame " << dThetaPerMotionFrame << endl;
 
     //we use the swinging source to calc. a path for the swinging foot
     //it is not clear now if we will need to angle offset or what
@@ -837,7 +865,7 @@ void StepGenerator::countStepTowardsDestination(Step::ptr step, float& dest_x,
 
     // necessary (HACK!) because steps will alternate +/- in Y and Theta
     if (sign(dest_y) == sign(step->y))
-	    dest_y -= step->y;
+	dest_y -= step->y;
 
     if (sign(dest_theta) == sign(step->theta))
 	dest_theta -= step->theta;
@@ -1227,7 +1255,7 @@ vector<float> StepGenerator::getOdometryUpdate(){
     const float rotation = -safe_asin(cc_Transform(1,0));
     const ufvector3 odo = prod(cc_Transform,CoordFrame3D::vector3D(0.0f,0.0f));
     const float odoArray[3] = {odo(0),odo(1),rotation};
-    //printf("Odometry update is (%g,%g,%g)\n",odoArray[0],odoArray[1],odoArray[2]);
+    //printf("Odometry update is (%g,%g,%g)\n",odo;Array[0],odoArray[1],odoArray[2]);
     cc_Transform = CoordFrame3D::translation3D(0.0f,0.0f);
     return vector<float>(odoArray,&odoArray[3]);
 }
@@ -1243,18 +1271,53 @@ void StepGenerator::resetOdometry(const float initX, const float initY){
 /**
  * Called once per motion frame to update the odometry
  *
- *  We may not correctly account for the rotation around the S frame
- *  rather than the C frame, which is what we are actually returning.
+ * For odometry, we average the position of both legs to find a point that
+ * is approximately in the middle of our convex hull. We do this so that
+ * the odometry remains stable over time, instead of oscillating in the X/Y/T
+ * as the robot takes steps. This method also applies the delta odometry to
+ * build cc_Transform (doc'd elsewhere)
  */
+void StepGenerator::updateOdometry() {
+    vector<float> left = leftLeg.getOdoUpdate();
+    vector<float> right = rightLeg.getOdoUpdate();
 
-void StepGenerator::updateOdometry(const vector<float> &deltaOdo){
+    vector<float> deltaOdo(3,0);
+
+    /* odometry explodes in the X during the swinging phase, so we always ask
+       the supporting leg.
+       Explanation: the swinging leg moves from negative to positive in X in the
+         F frame, and the difference values used for odometry explode when the leg
+	 crosses X-axis zero.
+     */
+    // NOTE: x odometry is currently set up to be filtered, but we're using a 1-width
+    // Boxcar filter so no filtering actually takes place.
+    if (leftLeg.isSupporting())
+	deltaOdo[0] = static_cast<float>(xOdoFilter.X(left[0]));
+    else
+	deltaOdo[0] = static_cast<float>(xOdoFilter.X(right[0]));
+
+    /* average the motion delta from the legs (Y)
+       this tracks a point approximately between our two legs, and reflects
+       actual robot motion much better */
+    deltaOdo[1] = (left[1] + right[1])*0.5f;
+
+    // use the hacked delta theta calculated in swapSupportLegs
+    deltaOdo[2] = dThetaPerMotionFrame;
+
+#ifdef DEBUG_ODOMETRY_UPDATE
+    static int fCount;
+    cout << fCount++ << " "
+	 << deltaOdo[0] << " "
+	 << deltaOdo[1] << " "
+	 << deltaOdo[2] << " "
+	 << endl;
+#endif
     const ufmatrix3 odoUpdate = prod(CoordFrame3D::translation3D(deltaOdo[0],
                                                                  deltaOdo[1]),
                                      CoordFrame3D::rotation3D(CoordFrame3D::Z_AXIS,
                                                               -deltaOdo[2]));
     const ufmatrix3 new_cc_Transform  = prod(cc_Transform,odoUpdate);
     cc_Transform = new_cc_Transform;
-
 }
 
 /**
@@ -1357,7 +1420,6 @@ void StepGenerator::debugLogging(){
             leftLeg.getSupportMode());
     ttime += MOTION_FRAME_LENGTH_S;
 #endif
-
 
 #ifdef DEBUG_SENSOR_ZMP
     const float preX = zmp_ref_x.front();

@@ -67,7 +67,7 @@ public:
 
     //For noggin
     MotionModel getOdometryUpdate(){
-        return switchboard->getOdometryUpdate();
+	return switchboard->getOdometryUpdate();
     }
 
     int postGotoCom(float pX, float pY, float pZ,

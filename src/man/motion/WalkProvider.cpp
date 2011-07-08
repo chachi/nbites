@@ -29,6 +29,7 @@ using namespace std;
 using namespace Kinematics;
 
 //#define DEBUG_WALKPROVIDER
+//#define DEBUG_ODOMETRY
 
 WalkProvider::WalkProvider(shared_ptr<Sensors> s,
                            shared_ptr<NaoPose> _pose)
@@ -44,6 +45,8 @@ WalkProvider::WalkProvider(shared_ptr<Sensors> s,
       pendingDestCommands(false),
       pendingGaitCommands(false),
       pendingStartGaitCommands(false),
+	  calculatedOdoThisFrame(false),
+	  odometryUpdate(vector<float>(3,0)),
       nextCommand(new WalkCommand(0,0,0)),
       nextDestCommand(new DestinationCommand(0,0,0))
 {
@@ -83,6 +86,8 @@ void WalkProvider::calculateNextJointsAndStiffnesses() {
     }
     pendingGaitCommands = false;
     pendingStartGaitCommands = false;
+	// since multiple calls to getOdometry won't work
+    calculatedOdoThisFrame = false;
 
     //The meta gait needs to be ticked BEFORE any commands are sent to stepGen
     metaGait.tick_gait();
@@ -91,8 +96,8 @@ void WalkProvider::calculateNextJointsAndStiffnesses() {
         stepGenerator.setSpeed(nextCommand->x_mms,
                                nextCommand->y_mms,
                                nextCommand->theta_rads);
-        if (nextDestCommand )
-        nextDestCommand->finishedExecuting();
+        if (nextDestCommand)
+            nextDestCommand->finishedExecuting();
     }
     pendingCommands = false;
     nextCommand = WalkCommand::ptr();
@@ -108,23 +113,37 @@ void WalkProvider::calculateNextJointsAndStiffnesses() {
 
     if (pendingDestCommands) {
         int framesToDest = stepGenerator.setDestination(nextDestCommand->x_mm,
-							nextDestCommand->y_mm,
-							nextDestCommand->theta_rads,
-							nextDestCommand->gain);
+                                                        nextDestCommand->y_mm,
+                                                        nextDestCommand->theta_rads,
+                                                        nextDestCommand->gain);
         nextDestCommand->framesRemaining(framesToDest);
     }
     pendingDestCommands = false;
-
-    //Also need to process stepCommands here
 
     if(!isActive()){
         cout << "WARNING, I wouldn't be calling the Walkprovider while"
             " it thinks its DONE if I were you!" <<endl;
     }
 
+	// get the odometry update from StepGenerator
+	const vector<float> odoDelta = updateOdometryFromMotion();
+
     // advance the in-progress DestinationCommand
-    if (nextDestCommand)
+    if (nextDestCommand) {
         nextDestCommand->tick();
+        nextDestCommand->tickOdometry(odoDelta[0],
+                                      odoDelta[1],
+                                      odoDelta[2]);
+#ifdef DEBUG_ODOMETRY
+		if (!nextDestCommand->isDoneExecuting()) {
+			cout << " Ticked DestCommand (" << nextDestCommand->framesRemaining()
+				 << " left) X: " << odometryUpdate[0] << " Y: " << odometryUpdate[1]
+				 << " Theta: " << odometryUpdate[2] << " finished? ";
+			nextDestCommand->isDoneExecuting() ? cout<< " yes" : cout << " no";
+			cout << endl;
+		}
+#endif
+    }
 
     //ask the step Generator to update ZMP values, com targets
     stepGenerator.tick_controller();
@@ -167,6 +186,15 @@ void WalkProvider::calculateNextJointsAndStiffnesses() {
     PROF_EXIT(P_WALK);
 }
 
+// if the pointer type is generic, cast it as a WalkCommand
+void WalkProvider::setCommand(const MotionCommand::ptr command) {
+	pthread_mutex_lock(&walk_provider_mutex);
+
+	setCommand(boost::dynamic_pointer_cast<WalkCommand>(command));
+
+	pthread_mutex_unlock(&walk_provider_mutex);
+}
+
 void WalkProvider::setCommand(const WalkCommand::ptr command){
     //grab the velocities in mm/second rad/second from WalkCommand
     pthread_mutex_lock(&walk_provider_mutex);
@@ -182,7 +210,7 @@ void WalkProvider::setCommand(const DestinationCommand::ptr command){
     pthread_mutex_lock(&walk_provider_mutex);
     // mark the old command as finished, for Python
     if (nextDestCommand)
-	nextDestCommand->finishedExecuting();
+        nextDestCommand->finishedExecuting();
 
     nextDestCommand = command;
     pendingDestCommands = true;
@@ -206,7 +234,7 @@ void WalkProvider::setCommand(const StepCommand::ptr command){
 void WalkProvider::setActive(){
     //check to see if the walk engine is active
     if(stepGenerator.isDone() && !pendingCommands && !pendingStepCommands
-	   && !pendingDestCommands){
+           && !pendingDestCommands){
         inactive();
     }else{
         active();
@@ -273,4 +301,46 @@ std::vector<BodyJointCommand::ptr> WalkProvider::getGaitTransitionCommand()
                                  Kinematics::INTERPOLATION_SMOOTH))  );
     pthread_mutex_unlock(&walk_provider_mutex);
     return commands;
+}
+
+MotionModel WalkProvider::getOdometryUpdate() {
+	/* if we're active, we let calculateNextJointsAndStiffnesses() call this,
+	   otherwise we have to do it here */
+	if (!isActive()) {
+		updateOdometryFromMotion();
+	}
+
+	MotionModel tUp = MotionModel(odometryUpdate[0]*MM_TO_CM,
+								  odometryUpdate[1]*MM_TO_CM,
+								  odometryUpdate[2]);
+	// reset the odometry updates that we've collected locally
+	odometryUpdate[0] = 0;
+	odometryUpdate[1] = 0;
+	odometryUpdate[2] = 0;
+
+	return tUp;
+}
+
+/**
+ * Handles caching of the odometry from StepGenerator. Neccesary because
+ * StepGenerator::getOdometryUpdate() is not a const function, does calculations
+ * and changes things so we don't want to call it more than once per frame.
+ */
+vector<float> WalkProvider::updateOdometryFromMotion() {
+    if (!calculatedOdoThisFrame) {
+		vector<float> thisUpdate = stepGenerator.getOdometryUpdate();
+
+		odometryUpdate[0] += thisUpdate[0];
+		odometryUpdate[1] += thisUpdate[1];
+		odometryUpdate[2] += thisUpdate[2];
+
+#ifdef DEBUG_ODO
+		cout << " odo this tick-- X: " << odometryUpdate[0]
+			 << " Y: " << odometryUpdate[1]
+			 << " Z: " << odometryUpdate[2] << endl;
+#endif
+        calculatedOdoThisFrame = true;
+		return thisUpdate;
+    }
+	return vector<float>(0);
 }

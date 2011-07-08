@@ -78,6 +78,7 @@
 #include <cstdio>
 #include <math.h>
 #include <list>
+#include <queue>
 
 #include <boost/tuple/tuple.hpp>
 #include <boost/shared_ptr.hpp>
@@ -95,6 +96,8 @@
 #include "NBMatrixMath.h"
 #include "ZmpEKF.h"
 #include "ZmpAccExp.h"
+#include "OdometryFilter.h"
+#include "dsp.h"
 
 //Debugging flags:
 #ifdef WALK_DEBUG
@@ -178,7 +181,7 @@ private: // Helper methods
 
     void resetQueues();
     void resetOdometry(const float initX, const float initY);
-    void updateOdometry(const std::vector<float> &deltaOdo);
+    void updateOdometry();
     void debugLogging();
     void update_FtoI_transform();
 private:
@@ -232,7 +235,10 @@ private:
     NBMath::ufmatrix3 fi_Transform;
     NBMath::ufmatrix3 fc_Transform;
     NBMath::ufmatrix3 cf_Transform;
-    NBMath::ufmatrix3 cc_Transform; //odometry
+
+    NBMath::ufmatrix3 cc_Transform;
+    float lastRotation, avgStepRotation, dThetaPerMotionFrame;
+    Boxcar xOdoFilter;
 
     boost::shared_ptr<Sensors> sensors;
     boost::shared_ptr<NaoPose> pose;
