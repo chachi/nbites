@@ -247,13 +247,11 @@ bool gradientsPointIn(HoughLine i, HoughLine j)
     typedef pair<double, double> Vec;
 
     // Find intersection point of i (start of ray, x0)
-    point<double> u_0(AVERAGED_IMAGE_WIDTH/2. + i.getCosT() * i.getRadius(),
-                      AVERAGED_IMAGE_HEIGHT/2. + i.getSinT() * i.getRadius());
+    point<double> u_0 = i.getOriginPoint();
     Vec u(i.getCosT(), i.getSinT());
 
     // Find intersection point of j (p0)
-    point<double> v_0(AVERAGED_IMAGE_WIDTH/2. + j.getCosT() * j.getRadius(),
-                      AVERAGED_IMAGE_HEIGHT/2. + j.getSinT() * j.getRadius());
+    point<double> v_0 = j.getOriginPoint();
     Vec v(j.getSinT(), -j.getCosT());
 
     // Compute d = x dot p
