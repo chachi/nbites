@@ -121,3 +121,13 @@ void HoughLine::findLineImageIntersects(const HoughLine& line,
         swap(u1,u2);
     }
 }
+
+point<double> HoughLine::getOriginPoint() const
+{
+    if(!didPt) {
+        originPt = point<int>(getRadius() * getCosT()+IMAGE_WIDTH/2,
+                              getRadius() * getSinT()+IMAGE_HEIGHT/2);
+        didPt = true;
+    }
+    return originPt;
+}

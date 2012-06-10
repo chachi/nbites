@@ -40,6 +40,9 @@ public:
         return cosT;
     }
 
+    /** @returns the point on this line closest to the origin */
+    point<double> getOriginPoint() const;
+
     inline bool isOnLine(const AnglePeak& a) const {
         if (abs(a.angle - tIndex) < acceptable_angle_diff){
 
@@ -105,7 +108,8 @@ private:
     int score;             // Hough accumulator count
 
     mutable float sinT, cosT;   // These get computed on the fly, if needed
-    mutable bool didSin, didCos;
+    mutable point<double> originPt;
+    mutable bool didSin, didCos, didPt;
 
     enum {
         acceptable_angle_diff = 5,
