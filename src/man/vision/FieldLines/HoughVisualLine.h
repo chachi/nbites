@@ -17,6 +17,8 @@ public:
     double getDy() const;
     point<int> getPointOnLine() const;
 
+    void setEndpoints(const point<int>& end_1, const point<int>& end_2);
+    void getEndpoints(point<int>& end_1, point<int>& end_2) const;
 
 private:
     void calculateLineParameters();
@@ -27,6 +29,7 @@ private:
 
     double mDx, mDy;
     point<int> mPoint;
+    point<int> mEnd_1, mEnd_2;
 };
 
 #endif /* _HOUGHVISUALLINE_H_ */

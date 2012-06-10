@@ -22,7 +22,6 @@ void ThresholdedImage::buildBitmap() {
 //                        rawImage->height(),
 //                        QImage::Format_RGB32);
 //    }
-
     QImage qimage = QImage(rawImage->width(),
                            rawImage->height(),
                            QImage::Format_RGB32);
@@ -45,14 +44,15 @@ void ThresholdedImage::buildBitmap() {
     }
 
     bitmap = QPixmap::fromImage(qimage);
+    scaleBitmap_640_480();
 }
 
 void ThresholdedImage::scaleBitmap_640_480() {
-    bitmap.scaled(640, 480);
+    bitmap = bitmap.scaled(640, 480);
 }
 
 void ThresholdedImage::scaleBitmap_320_240() {
-    bitmap.scaled(320, 240);
+    bitmap = bitmap.scaled(320, 240);
 }
 
 }

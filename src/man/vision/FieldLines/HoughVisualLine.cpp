@@ -15,6 +15,8 @@ void HoughVisualLine::calculateLinePoint()
     if (mLines.first.intersects(mLines.second, mPoint)) {
         mPoint.x += IMAGE_WIDTH/2;
         mPoint.y += IMAGE_HEIGHT/2;
+
+        cout << "mPoint: " << mPoint << endl;
     } else {
         HoughLine& hl_1 = mLines.first;
         HoughLine& hl_2 = mLines.second;
@@ -29,8 +31,8 @@ void HoughVisualLine::calculateLinePoint()
         // If they're parallel, then just get the point halfway
         // between the two lines
         point<int> onHL_2_close = Utility::getClosestPointOnLine(onHL_1,
-                                                                  onHL_2_1,
-                                                                  onHL_2_2);
+                                                                 onHL_2_1,
+                                                                 onHL_2_2);
         mPoint = point<double>((onHL_1.x + onHL_2_close.x)/2,
                                (onHL_1.y + onHL_2_close.y)/2);
     }
@@ -53,6 +55,10 @@ void HoughVisualLine::calculateSlope()
 
         mDy = m_1*m_2 - 1 + sqrt((m_1*m_1 + 1)*(m_2*m_2 + 1));
         mDx = m_1 + m_2;
+
+        double mag = sqrt(mDy*mDy + mDx*mDx);
+        mDx /= mag;
+        mDy /= mag;
 
     } else {
         // If they're parallel, then just use the slope of one of the
@@ -98,4 +104,18 @@ double HoughVisualLine::getDx() const
 point<int> HoughVisualLine::getPointOnLine() const
 {
     return mPoint;
+}
+
+void HoughVisualLine::setEndpoints(const point<int>& end_1,
+                                   const point<int>& end_2)
+{
+    mEnd_1 = end_1;
+    mEnd_2 = end_2;
+}
+
+void HoughVisualLine::getEndpoints(point<int>& end_1,
+                                   point<int>& end_2) const
+{
+    end_1 = mEnd_1;
+    end_2 = mEnd_2;
 }

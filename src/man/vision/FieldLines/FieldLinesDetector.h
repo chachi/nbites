@@ -44,6 +44,7 @@ private:
                         int* field_edge,
                         const uint16_t *img);
     void findFieldLines();
+    void trimFieldLines();
 
     boost::shared_ptr<EdgeDetector> mEdges;
     boost::shared_ptr<Gradient> mGradient;
