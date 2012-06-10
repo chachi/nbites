@@ -18,6 +18,9 @@ struct point {
     point(const T _x, const T _y)
         : x(_x), y(_y) { }
 
+    template<typename O>
+    point(const point<O> other) : x(other.x), y(other.y) { }
+
     bool operator== (const point& secondPt) const {
         return (x == secondPt.x &&
                 y == secondPt.y);
@@ -150,7 +153,7 @@ struct estimate {
 
     friend std::ostream& operator<< (std::ostream &o, const estimate &e)
         {
-            return o << "Distance: " << e.dist << ", Elevation: " << e.elevation 
+            return o << "Distance: " << e.dist << ", Elevation: " << e.elevation
                      << ", Bearing: " << e.bearing << "(" << e.x << ", " << e.y << ")";
         }
 };
@@ -165,4 +168,3 @@ struct fieldOpening {
     float bearing;
 };
 #endif // Structs_h_DEFINED
-
