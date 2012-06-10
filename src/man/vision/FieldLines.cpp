@@ -524,8 +524,6 @@ void FieldLines::findHorizontalLinePoints(vector <linePoint> &points)
 											linePointX,y);
 								}
 
-								vision->drawPoint(point.x, point.y,
-												  UNUSED_HOR_POINT_COLOR);
 								points.push_back(point);
 							}
 							else {
@@ -571,7 +569,6 @@ void FieldLines::findHorizontalLinePoints(vector <linePoint> &points)
 						// We missed the last line. Start anew from this point
 						else if (isSecondFarUphillEdge(greenWhiteX, y, x, y,
 													   HORIZONTAL)) {
-							vision->drawPoint(x, y, YELLOW);
 							resetLineCounters(numWhite, numUndefined, numNonWhite);
 							greenWhiteX = x;
 						}
