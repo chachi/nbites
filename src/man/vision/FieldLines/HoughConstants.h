@@ -21,7 +21,7 @@ enum
 #endif
     first_peak_row = first_smoothing_row + 1,
 
-    default_accept_thresh = 43,
+    default_accept_thresh = 30,
     default_angle_spread  = 5,
     peak_points = 4,
     hough_max_peaks = r_span * t_span / 4,
