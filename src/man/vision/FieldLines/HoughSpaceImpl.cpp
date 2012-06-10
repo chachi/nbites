@@ -199,13 +199,7 @@ void HoughSpaceImpl::suppress(ActiveArray<HoughLine>& lines)
                                     lines[j].getTIndex()) & 0xff)
                                   << 24 >> 24);
 
-            // Since the lines are ordered by T value, if the tDiff is
-            // too great, we should stop going any further with the
-            // current line. This keeps us from looking at every pair
-            // of lines, every time.
             if (tDiff > getAngleSpread() + 1){
-                break;
-            } else if (tDiff > getAngleSpread() + 1){
                 continue;
             }
 
