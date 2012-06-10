@@ -375,25 +375,25 @@ peaks_xLoop:
         ##
         ##
 
-        ## ## Calculate address in field_edges table
-        ## ## ecx goes 316 -> 0 and is one past index of the non-zero pixel
-        ## ## plus it begins at index 2: thus we add 317
-        ## ## so we want &field_edges - 4*ecx + 317*4 (this is a table of 32bit ints)
-        ## imul    esi, ecx, -4
-        ## add     esi, dword ptr[esp + field_edges_param + end_of_peak_stack + 12]
-        ## mov     esi, dword ptr [esi + 317*4]
+        ## Calculate address in field_edges table
+        ## ecx goes 316 -> 0 and is one past index of the non-zero pixel
+        ## plus it begins at index 2: thus we add 317
+        ## so we want &field_edges - 4*ecx + 317*4 (this is a table of 32bit ints)
+        imul    esi, ecx, -4
+        add     esi, dword ptr[esp + field_edges_param + end_of_peak_stack + 12]
+        mov     esi, dword ptr [esi + 317*4]
 
-	## ## row count goes 237->2, and topEdge is from 0->239
-        ## ## transform esi to be the same as the row_count
-        ## imul    esi, -1
-        ## add     esi, 239
+	## row count goes 237->2, and topEdge is from 0->239
+        ## transform esi to be the same as the row_count
+        imul    esi, -1
+        add     esi, 239
 
         ## If the topEdge has a larger value (i.e. is below the current point
         ##    when you look at the image) then keep looping. We've
 	## flipped all the values, however, so we compare looking for lower values
         ## now
-        ## cmp     esi, dword ptr[esp + row_count]
-        ## jb      peaks_xLoop     # below, not above!
+        cmp     esi, dword ptr[esp + row_count]
+        jb      peaks_xLoop     # below, not above!
 
         # Found next magnitude above noise threshold. Here
         #       edi     -> one word past the non-zero
